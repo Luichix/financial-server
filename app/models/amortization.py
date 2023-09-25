@@ -1,4 +1,11 @@
+from enum import Enum
 from pydantic import BaseModel, Field
+
+
+class AmortizationType(str, Enum):
+    FRENCH = "French"
+    GERMAN = "German"
+    AMERICAN = "American"
 
 
 class LoanBaseParams(BaseModel):
@@ -35,7 +42,7 @@ class DisbursementFee(BaseModel):
 
 class LoanExtendParams(LoanBaseParams):
     grace_period_months: int = Field(default=0, ge=0, title="Grace period months")
-    irregular_payments: list[AdditionalPayment] | None = None
+    additional_payments: list[AdditionalPayment] | None = None
     insurances: list[LoanInsurance] | None = None
     disbursement_fee: DisbursementFee | None = None
 
@@ -49,10 +56,14 @@ class AmortizationBase(BaseModel):
 
 
 class AmortizationExtend(AmortizationBase):
-    irregular_payment: float | None
+    additional_payment: float | None = None
     insurances: dict[str, float] | None = None
 
 
 class OutLoanAmortization(BaseModel):
-    commission: float | None
+    total_monthly_payment: float
+    total_interest_payment: float
+    total_irregular_payment: float | None = None
+    total_insurances: dict[str, float] | None = None
+    commission: float | None = None
     amortization_table: list[AmortizationExtend]

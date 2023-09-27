@@ -17,10 +17,10 @@ def create_amortization_entry(
 ):
     return {
         "month": month,
-        "monthly_payment": round(monthly_payment, 2),
-        "principal_payment": round(principal_payment, 2),
-        "interest_payment": round(interest_payment, 2),
-        "remaining_balance": round(remaining_balance, 2),
+        "monthlyPayment": round(monthly_payment, 2),
+        "principalPayment": round(principal_payment, 2),
+        "interestPayment": round(interest_payment, 2),
+        "remainingBalance": round(remaining_balance, 2),
     }
 
 
@@ -180,7 +180,7 @@ def calculate_amortization(
         )
 
         if additional_payments is not None:
-            entry["additional_payment"] = round(additional_payment, 2)
+            entry["additionalPayment"] = round(additional_payment, 2)
             total_additional_payment += additional_payment
 
         if insurances is not None:
@@ -215,10 +215,10 @@ def calculate_amortization(
         }
 
         # Add the calculated totals to the result dictionary
-        result["total_monthly_payment"] = round(total_monthly_payment, 2)
-        result["total_interest_payment"] = round(total_interest_payment, 2)
-        result["total_additional_payment"] = round(total_additional_payment, 2)
-        result["total_insurances"] = rounded_total_insurances
-        result["amortization_table"] = amortization_table
+        result["totalMonthlyPayment"] = round(total_monthly_payment, 2)
+        result["totalInterestPayment"] = round(total_interest_payment, 2)
+        result["totalAdditionalPayment"] = round(total_additional_payment, 2)
+        result["totalInsurances"] = rounded_total_insurances
+        result["amortizationTable"] = amortization_table
 
     return result

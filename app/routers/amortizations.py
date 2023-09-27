@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from typing import Annotated
+from fastapi import APIRouter, Query
 from app.models.amortization import (
     AmortizationType,
-    LoanBaseParams,
     LoanExtendParams,
     OutLoanAmortization,
 )
@@ -18,11 +18,13 @@ async def root():
 
 
 @router.post(
-    "/generate_amortization_table",
+    "/amortization_table",
     response_model=OutLoanAmortization,
 )
-def amortization_fixed_installment(
+def amortization_table(
     loan_params: LoanExtendParams,
-    amortization_type: AmortizationType = AmortizationType.FRENCH,
+    amortization_type: Annotated[
+        AmortizationType, Query(alias="amortizationType")
+    ] = AmortizationType.FRENCH,
 ):
     return generate_amortization_table(loan_params, amortization_type)

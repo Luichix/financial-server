@@ -71,3 +71,11 @@ financial_server/
 
 
 ```
+
+## Get dependencies
+
+```cmd
+
+pip freeze > requirements.txt
+
+```

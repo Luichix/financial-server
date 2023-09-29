@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Query
+from fastapi.responses import RedirectResponse
 from app.models.amortization import (
     AmortizationType,
     LoanExtendParams,
@@ -14,7 +15,7 @@ router = APIRouter()
 
 @router.get("/")
 async def root():
-    return {"Hello": "Hello World"}
+    return RedirectResponse(url="/docs/")
 
 
 @router.post(

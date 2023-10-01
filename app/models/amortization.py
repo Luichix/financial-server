@@ -77,8 +77,8 @@ class OutLoanAmortization(BaseModel):
     total_interest_payment: float = Field(
         alias="totalInterestPayment",
     )
-    total_irregular_payment: float | None = Field(
-        alias="totalIrregularPayment",
+    total_additional_payment: float | None = Field(
+        alias="totalAdditionalPayment",
         default=None,
     )
     total_insurances: dict[str, float] | None = Field(

@@ -70,7 +70,7 @@ class AmortizationExtend(AmortizationBase):
     insurances: dict[str, float] | None = None
 
 
-class OutLoanAmortization(BaseModel):
+class OutLoanAmortization(LoanBaseParams):
     total_monthly_payment: float = Field(
         alias="totalMonthlyPayment",
     )

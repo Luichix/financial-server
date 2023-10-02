@@ -95,6 +95,8 @@ def generate_amortization_table(
 
     return calculate_amortization(
         additional_payments=additional_payments,
+        principal=principal,
+        annual_interest_rate=interest_rate,
         num_payments=num_payments,
         remaining_balance=remaining_balance,
         monthly_interest_rate=monthly_interest_rate,
@@ -111,7 +113,6 @@ def generate_amortization_table(
 # Calculate amortization table
 def calculate_amortization(
     additional_payments: list[AdditionalPayment] | None,
-    num_payments,
     remaining_balance,
     monthly_interest_rate,
     monthly_payment: float | None,
@@ -121,6 +122,9 @@ def calculate_amortization(
     insurances: list[LoanInsurance] | None,
     amortization_type: AmortizationType,
     interest_payment: float | None,
+    principal: float,
+    annual_interest_rate: float,
+    num_payments: int,
 ) -> OutLoanAmortization:
     # Initialize variables to keep track of totals
     total_monthly_payment = 0
@@ -215,6 +219,9 @@ def calculate_amortization(
         }
 
         # Add the calculated totals to the result dictionary
+        result["principal"] = round(principal, 2)
+        result["annualInterestRate"] = annual_interest_rate
+        result["numPayments"] = num_payments
         result["totalMonthlyPayment"] = round(total_monthly_payment, 2)
         result["totalInterestPayment"] = round(total_interest_payment, 2)
         result["totalAdditionalPayment"] = round(total_additional_payment, 2)

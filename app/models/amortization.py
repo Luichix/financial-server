@@ -12,11 +12,11 @@ class LoanBaseParams(BaseModel):
     principal: float = Field(
         gt=0, title="Loan Capital", description="Principal amount of the loan"
     )
-    annual_interest_rate: float = Field(
+    interest_rate: float = Field(
         gt=0,
-        title="Annual interest rate",
+        title="Interest rate",
         description="This value has been greater than 0",
-        alias="annualInterestRate",
+        alias="interestRate",
     )
     num_payments: int = Field(
         gt=0,

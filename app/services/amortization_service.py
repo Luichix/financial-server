@@ -33,7 +33,7 @@ def generate_amortization_table(
 
     Args:
       principal: Loan capital.
-      annual_interes_rate: Annual interest rate.
+      interes_rate: Interest rate.
       num_payments: Number of loan payments in the period.
 
     Returns:
@@ -46,7 +46,7 @@ def generate_amortization_table(
     """
     # Extract values of loan params
     principal = loan_params.principal
-    interest_rate = loan_params.annual_interest_rate / 100.0
+    interest_rate = loan_params.interest_rate / 100.0
     num_payments = loan_params.num_payments
     additional_payments = loan_params.additional_payments
     grace_period_months = loan_params.grace_period_months
@@ -96,7 +96,7 @@ def generate_amortization_table(
     return calculate_amortization(
         additional_payments=additional_payments,
         principal=principal,
-        annual_interest_rate=interest_rate,
+        interest_rate=interest_rate,
         num_payments=num_payments,
         remaining_balance=remaining_balance,
         monthly_interest_rate=monthly_interest_rate,
@@ -123,7 +123,7 @@ def calculate_amortization(
     amortization_type: AmortizationType,
     interest_payment: float | None,
     principal: float,
-    annual_interest_rate: float,
+    interest_rate: float,
     num_payments: int,
 ) -> OutLoanAmortization:
     # Initialize variables to keep track of totals
@@ -220,7 +220,7 @@ def calculate_amortization(
 
         # Add the calculated totals to the result dictionary
         result["principal"] = round(principal, 2)
-        result["annualInterestRate"] = annual_interest_rate
+        result["interestRate"] = interest_rate
         result["numPayments"] = num_payments
         result["totalMonthlyPayment"] = round(total_monthly_payment, 2)
         result["totalInterestPayment"] = round(total_interest_payment, 2)

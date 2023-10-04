@@ -1,11 +1,23 @@
-from app.services.amortization_service import create_amortization_entry
+from app.services.amortization_service import (
+    adjust_frecuency_value,
+)
+from app.models.amortization import PaymentFrecuency
 
 
-def test_create_amortization_entry():
-    assert create_amortization_entry(1, 1000, 900, 100, 9000) == {
-        "month": 1,
-        "monthly_payment": 1000,
-        "principal_payment": 900,
-        "interest_payment": 100,
-        "remaining_balance": 9000,
-    }
+payment_frecuency = PaymentFrecuency.ANNUAL
+value = 360
+value_type = PaymentFrecuency.DAILY
+
+
+def test_adjust_frecuency_value():
+    adjusted_value = adjust_frecuency_value(payment_frecuency, value, value_type)
+
+    print(adjusted_value)
+    assert adjusted_value == 1
+
+
+def test_adjust_frecuency_value():
+    adjusted_value = adjust_frecuency_value(frecuency="daily", value=5, type="annual")
+
+    print(adjusted_value)
+    assert adjusted_value == 1800

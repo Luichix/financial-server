@@ -3,7 +3,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import RedirectResponse
 from app.models.amortization import (
     AmortizationType,
-    LoanExtendParams,
+    LoanExtraParams,
     OutLoanAmortization,
 )
 from app.services.amortization_service import (
@@ -23,7 +23,7 @@ async def root():
     response_model=OutLoanAmortization,
 )
 def amortization_table(
-    loan_params: LoanExtendParams,
+    loan_params: LoanExtraParams,
     amortization_type: Annotated[
         AmortizationType, Query(alias="amortizationType")
     ] = AmortizationType.FRENCH,

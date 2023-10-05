@@ -110,7 +110,9 @@ class LoanExtraParams(LoanFrecuencyParams):
     additional_payments: list[AdditionalPayment] | None = Field(
         default=None, alias="additionalPayments"
     )
-    recurring_payments: list[RecurringPayment] | None = None
+    recurring_payments: list[RecurringPayment] | None = Field(
+        default=None, alias="recurringPayments"
+    )
     disbursement_fee: DisbursementFee | None = Field(
         default=None, alias="disbursementFee"
     )

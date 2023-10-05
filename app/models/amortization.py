@@ -8,15 +8,37 @@ class AmortizationType(str, Enum):
     AMERICAN = "American"
 
 
+class FrecuencyType(str, Enum):
+    PERIOD = "period"
+    RATE = "rate"
+
+
 class PaymentFrecuency(str, Enum):
     ANNUAL = "annual"
     SEMIANNUAL = "semiannual"
-    QUARTELY = "quartely"
+    QUARTERLY = "quarterly"
     BIMONTHLY = "bimonthly"
     MONTHLY = "monthly"
     BIWEEKLY = "biweekly"
     WEEKLY = "weekly"
     DAILY = "daily"
+
+
+class FactorFrequency:
+    factors = {
+        "annual": 1,
+        "semiannual": 2,
+        "quarterly": 4,
+        "bimonthly": 6,
+        "monthly": 12,
+        "biweekly": 26,
+        "weekly": 52,
+        "daily": 360,
+    }
+
+    @classmethod
+    def __getitem__(cls, key):
+        return cls.factors[key]
 
 
 # Loan Base Params

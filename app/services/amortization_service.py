@@ -3,6 +3,8 @@ from app.models.amortization import (
     AdditionalPayment,
     AmortizationType,
     DisbursementFee,
+    FactorFrequency,
+    FrecuencyType,
     LoanExtraParams,
     OutAmortizationExtra,
     RecurringPayment,
@@ -50,23 +52,12 @@ def generate_amortization_table(
     additional_payments = loan_params.additional_payments
     recurring_payments = loan_params.recurring_payments
 
-    adjustment_factor = {
-        PaymentFrecuency.ANNUAL: 1,
-        PaymentFrecuency.SEMIANNUAL: 2,
-        PaymentFrecuency.QUARTELY: 4,
-        PaymentFrecuency.BIMONTHLY: 6,
-        PaymentFrecuency.MONTHLY: 12,
-        PaymentFrecuency.BIWEEKLY: 26,
-        PaymentFrecuency.WEEKLY: 52,
-        PaymentFrecuency.DAILY: 360,
-    }
-
     # Adjust the values frecuencies in interest and periods
     adjusted_interest_rate = adjust_frecuency_value(
-        adjustment_factor, payment_frecuency, base_interest_rate, interest_rate_type
+        payment_frecuency, base_interest_rate, interest_rate_type, FrecuencyType.RATE
     )
     number_installments = adjust_frecuency_value(
-        adjustment_factor, payment_frecuency, periods_number, periods_type
+        payment_frecuency, periods_number, periods_type, FrecuencyType.PERIOD
     )
 
     number_installments = math.ceil(number_installments)
@@ -260,16 +251,22 @@ def calculate_amortization(
 
 
 # Calculate the adjusted_interest_rate
-def adjust_frecuency_value(factor, frecuency, value, type):
-    # Define factor of adjustment
-
+def adjust_frecuency_value(
+    frecuency, value, value_frecuency, frecuency_type: FrecuencyType
+):
     # Normalize value into year
-    normalize_value = value / factor[type]
 
-    if factor[frecuency] > factor[type]:
-        return normalize_value / factor[frecuency]
+    factor_frecuency = FactorFrequency.__getitem__(frecuency)
+    factor_type = FactorFrequency.__getitem__(value_frecuency)
 
-    elif factor[frecuency] < factor[type]:
-        return normalize_value * factor[frecuency]
+    if frecuency_type == FrecuencyType.PERIOD:
+        normalize_value = value / factor_type
+        if factor_frecuency != factor_type:
+            return normalize_value * factor_frecuency
+
+    elif frecuency_type == FrecuencyType.RATE:
+        normalize_value = value * factor_type
+        if factor_frecuency != factor_type:
+            return normalize_value / factor_frecuency
 
     return value

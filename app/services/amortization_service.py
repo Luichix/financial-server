@@ -9,7 +9,6 @@ from app.models.amortization import (
     OutAmortizationExtra,
     RecurringPayment,
     OutLoanAmortization,
-    PaymentFrecuency,
 )
 
 
@@ -150,8 +149,9 @@ def calculate_amortization(
     total_recurring_payments = {}
     amortization_table = []
 
+    period_range = number_installments + 1 + grace_period
     # Iterate over the loan periods.
-    for period in range(1, number_installments + 1 + grace_period):
+    for period in range(1, period_range):
         # Verify if exists an additional payment in current period
         if additional_payments is not None:
             additional_payment = next(
@@ -186,14 +186,20 @@ def calculate_amortization(
                 payment_installment = fee_payment
 
         # Calculate outstanding balance.
-        remaining_balance -= principal_payment
-
+        if amortization_type == AmortizationType.AMERICAN:
+            if period != period_range - 1:
+                remaining_balance -= principal_payment
+            else:
+                principal_payment = remaining_balance
+                remaining_balance = 0
+        else:
+            remaining_balance -= principal_payment
         # Add the result in amortization table.
         entry = {
             "period": period,
             "principalPayment": round(principal_payment, 2),
             "remainingBalance": round(remaining_balance, 2),
-            "feePayment": round(fee_payment, 2),
+            "feePayment": round(payment_installment, 2),
             "interestPayment": round(interest_payment, 2),
         }
 

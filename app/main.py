@@ -1,11 +1,12 @@
 from fastapi import FastAPI
-from app.routers import amortizations
+from app.routers import amortizations, financial_statements
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
 
 app.include_router(amortizations.router)
+app.include_router(financial_statements.router)
 
 
 origins = ["*"]

@@ -1,8 +1,11 @@
 from collections import defaultdict
 
 from app.models.financial_statement import (
+    Account,
     AccountCatalog,
     AccountGroup,
+    BalanceSheet,
+    BalanceSheetAccount,
     BalanceType,
     EntryBase,
     IncomeStatement,
@@ -43,9 +46,9 @@ def evaluate_journal_book(journal_book: JournalBook) -> JournalBook:
         unbalanced = True
 
     return JournalBook(
-        journal_book_entries=journal_book_entries,
+        journalBookEntries=journal_book_entries,
         unbalanced=unbalanced,
-        unbalanced_entries=unbalanced_entries,
+        unbalancedEntries=unbalanced_entries,
     )
 
 
@@ -84,19 +87,19 @@ def create_ledger_book(journal_book: JournalBook) -> LedgerBook:
         # Crear una entrada en el libro mayor si aún no existe
         if account.account_code not in ledger_entries:
             ledger_entries[account.account_code] = LedgerBookAccount(
-                account_code=account.account_code,
-                account_name=account.account_name,
+                accountCode=account.account_code,
+                accountName=account.account_name,
                 entries=[],
                 debit=0.0,
                 credit=0.0,
                 balance=0.0,  # Inicializar el saldo a 0
-                balance_type=balance_type,  # Establecer el tipo de saldo
+                balanceType=balance_type,  # Establecer el tipo de saldo
             )
 
         # Agregar la entrada del libro diario al libro mayor
         ledger_entries[account.account_code].entries.append(
             EntryBase(
-                entry_number=journal_entry.entry_number,
+                entryNumber=journal_entry.entry_number,
                 date=journal_entry.date,
                 debit=journal_entry.debit,
                 credit=journal_entry.credit,
@@ -113,7 +116,7 @@ def create_ledger_book(journal_book: JournalBook) -> LedgerBook:
         ledger_account.credit = ledger_credits[ledger_account.account_code]
 
     # Crear el libro mayor final
-    ledger_book = LedgerBook(ledger_book_entries=ledger_accounts)
+    ledger_book = LedgerBook(ledgerBookEntries=ledger_accounts)
 
     return ledger_book
 
@@ -136,12 +139,12 @@ def create_trial_balance(ledger_book: LedgerBook) -> TrialBalance:
         # Crear una entrada en el libro mayor si aún no existe
         if account.account_code not in accounts_entries:
             accounts_entries[account.account_code] = TrialBalanceAccount(
-                account_code=account.account_code,
-                account_name=account.account_name,
+                accountCode=account.account_code,
+                accountName=account.account_name,
                 debit=account.debit,
                 credit=account.credit,
-                debit_balance=0.0,
-                credit_balance=0.0,
+                debitBalance=0.0,
+                creditBalance=0.0,
                 balance=0.0,
             )
 
@@ -162,12 +165,12 @@ def create_trial_balance(ledger_book: LedgerBook) -> TrialBalance:
 
     # Crear el balance de comprobación como un diccionario
     trial_balance = TrialBalance(
-        accounts_summary=accounts_summary,
-        total_debit=total_debit,
-        total_credit=total_credit,
-        total_debit_balance=debit_balance,
-        total_credit_balance=credit_balance,
-        is_balanced=is_balanced,
+        accountsSummary=accounts_summary,
+        totalDebit=total_debit,
+        totalCredit=total_credit,
+        totalDebitBalance=debit_balance,
+        totalCreditBalance=credit_balance,
+        isBalanced=is_balanced,
     )
 
     return trial_balance
@@ -194,7 +197,7 @@ def create_income_statement(
         # Determinar si hay que añadirlo al estado de resultados
         if (
             account.get_group() in [AccountGroup.REVENUE, AccountGroup.EXPENSE]
-            and account.belongs_to_income_statement
+            and account.in_income_statement
         ):
             # Comprobar si la cuenta existe en el Balance de Comprobación
             if account.account_code in revenue_accounts:
@@ -244,4 +247,42 @@ def create_income_statement(
     income_statement.append(tax)
     income_statement.append(profit_or_loss)
 
-    return IncomeStatement(entries=income_statement)
+    return IncomeStatement(
+        entries=income_statement,
+        beforeTax=before_tax_value,
+        tax=tax_value,
+        profitOrLoss=profit_or_loss_value,
+    )
+
+
+def create_balance_sheet(
+    trial_balance: TrialBalance, account_catalog: AccountCatalog
+) -> BalanceSheet:
+    balance_sheet = BalanceSheet()
+
+    for account in account_catalog.accounts:
+        if account.in_balance_sheet:
+            if account.get_group() == AccountGroup.ASSETS:
+                balance_sheet.assets[account.account_code] = BalanceSheetAccount(
+                    accountCode=account.account_code,
+                    accountName=account.account_name,
+                    balance=get_account_balance(account, trial_balance),
+                )
+            elif account.get_group() == AccountGroup.LIABILITIES:
+                balance_sheet.liability[account.account_code] = BalanceSheetAccount(
+                    accountCode=account.account_code,
+                    accountName=account.account_name,
+                    balance=get_account_balance(account, trial_balance),
+                )
+            elif account.get_group() == AccountGroup.EQUITY:
+                balance_sheet.equity[account.account_code] = BalanceSheetAccount(
+                    accountCode=account.account_code,
+                    accountName=account.account_name,
+                    balance=get_account_balance(account, trial_balance),
+                )
+
+    return balance_sheet
+
+
+def get_account_balance(account: Account, trial_balance: TrialBalance):
+    return trial_balance.get_balance(account.account_code)

@@ -1,0 +1,662 @@
+from app.models.financial_statement import BalanceType
+
+
+account_catalog_data = {
+    "accounts": [
+        {
+            "accountCode": "1",
+            "accountName": "ACTIVO",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01",
+            "accountName": "ACTIVO CIRCULANTE",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.01",
+            "accountName": "CAJA GENERAL",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.02",
+            "accountName": "CAJA CHICA",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.03",
+            "accountName": "BANCOS",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.04",
+            "accountName": "INVENTARIOS",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.05",
+            "accountName": "CLIENTES",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.06",
+            "accountName": "DOCUMENTOS POR COBRAR",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.07",
+            "accountName": "DEUDORES DIVERSOS",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.08",
+            "accountName": "FUNCIONARIOS Y EMPLEADOS",
+            "description": "",
+        },
+        {
+            "accountCode": "1.01.09",
+            "accountName": "PAPELERIA Y UTILES",
+            "description": "",
+        },
+        {
+            "accountCode": "1.02",
+            "accountName": "ACTIVO FIJO",
+            "description": "",
+        },
+        {
+            "accountCode": "1.02.01",
+            "accountName": "TERRENO",
+            "description": "",
+        },
+        {
+            "accountCode": "1.02.02",
+            "accountName": "EDIFICIO",
+            "description": "",
+        },
+        {
+            "accountCode": "1.02.03",
+            "accountName": "MAQUINARIA Y EQUIPO",
+            "description": "",
+        },
+        {
+            "accountCode": "1.02.04",
+            "accountName": "MOBILIARIO Y EQUIPO DE OFICINA",
+            "description": "",
+        },
+        {
+            "accountCode": "1.02.05",
+            "accountName": "EQUIPO DE TRANSPORTE",
+            "description": "",
+        },
+        {
+            "accountCode": "1.02.06",
+            "accountName": "EQUIPO DE ENTREGA Y REPARTO",
+            "description": "",
+        },
+        {
+            "accountCode": "2",
+            "accountName": "PASIVO",
+            "description": "",
+        },
+        {
+            "accountCode": "2.01",
+            "accountName": "PASIVO CIRCULANTE",
+            "description": "",
+        },
+        {
+            "accountCode": "2.01.01",
+            "accountName": "PROVEEDORES",
+            "description": "",
+        },
+        {
+            "accountCode": "2.01.02",
+            "accountName": "ACREEDORES DIVERSOS",
+            "description": "",
+        },
+        {
+            "accountCode": "2.01.03",
+            "accountName": "DOCUMENTOS POR PAGAR",
+            "description": "",
+        },
+        {
+            "accountCode": "2.01.04",
+            "accountName": "IMPUESTOS POR PAGAR",
+            "description": "",
+        },
+        {
+            "accountCode": "2.01.05",
+            "accountName": "INTERESES POR PAGAR",
+            "description": "",
+        },
+        {
+            "accountCode": "2.01.06",
+            "accountName": "SUELDOS ACUMULADOS POR PAGAR",
+            "description": "",
+        },
+        {
+            "accountCode": "2.02",
+            "accountName": "PASIVO FIJO",
+            "description": "",
+        },
+        {
+            "accountCode": "2.02.01",
+            "accountName": "DOCUMENTOS POR PAGAR A LARGO PLAZO",
+            "description": "",
+        },
+        {
+            "accountCode": "3",
+            "accountName": "PATRIMONIO",
+            "description": "",
+        },
+        {
+            "accountCode": "3.01",
+            "accountName": "CAPITAL SOCIAL",
+            "description": "",
+        },
+        {
+            "accountCode": "3.01.01",
+            "accountName": "CAPITAL CONTABLE",
+            "description": "",
+        },
+        {
+            "accountCode": "3.01.02",
+            "accountName": "UTILIDAD DEL EJERCICIO",
+            "description": "",
+        },
+        {
+            "accountCode": "3.01.03",
+            "accountName": "PERDIDA DEL EJERCICIO",
+            "description": "",
+        },
+        {
+            "accountCode": "4",
+            "accountName": "INGRESOS",
+            "description": "",
+        },
+        {
+            "accountCode": "4.01",
+            "accountName": "INGRESOS POR VENTAS",
+            "description": "",
+            "inIncomeStatement": True,
+            "orderInIncomeStatement": 1,
+        },
+        {
+            "accountCode": "4.01.01",
+            "accountName": "VENTAS POR ACTIVIDAD",
+            "description": "",
+            "inIncomeStatement": True,
+        },
+        {
+            "accountCode": "5",
+            "accountName": "EGRESOS",
+            "description": "",
+        },
+        {
+            "accountCode": "5.01",
+            "accountName": "COSTOS DE PRODUCCIÓN",
+            "description": "",
+            "inIncomeStatement": True,
+            "orderInIncomeStatement": 1,
+        },
+        {
+            "accountCode": "5.01.01",
+            "accountName": "COSTOS DE MATERIALES",
+            "description": "",
+            "inIncomeStatement": True,
+        },
+        {
+            "accountCode": "5.01.02",
+            "accountName": "COSTOS DE MANO DE OBRA",
+            "description": "",
+            "inIncomeStatement": True,
+        },
+        {
+            "accountCode": "5.01.03",
+            "accountName": "COSTOS INDIRECTOS DE FABRICACIÓN",
+            "description": "",
+            "inIncomeStatement": True,
+        },
+        {
+            "accountCode": "5.02",
+            "accountName": "GASTOS OPERATIVOS",
+            "description": "",
+            "inIncomeStatement": True,
+            "orderInIncomeStatement": 1,
+        },
+        {
+            "accountCode": "5.02.01",
+            "accountName": "GASTOS DE ADMINISTRACIÓN",
+            "description": "",
+            "inIncomeStatement": True,
+        },
+        {
+            "accountCode": "5.02.02",
+            "accountName": "GASTOS DE VENTA",
+            "description": "",
+            "inIncomeStatement": True,
+        },
+        {
+            "accountCode": "5.02.03",
+            "accountName": "GASTOS FINANCIEROS",
+            "description": "",
+            "inIncomeStatement": True,
+        },
+    ]
+}
+
+journal_book_data = {
+    "journalBookEntries": [
+        {
+            "entryNumber": 1,
+            "date": "2023-10-10",
+            "debit": 100,
+            "credit": 0,
+            "concept": "Compra de productos en inventario",
+            "account": {
+                "accountCode": "1.01.01",
+                "accountName": "Inventario de Mercancias",
+            },
+        },
+        {
+            "entryNumber": 1,
+            "date": "2023-10-10",
+            "debit": 0,
+            "credit": 100,
+            "concept": "Pago de la compra de mercancia al contado",
+            "account": {
+                "accountCode": "1.02.01",
+                "accountName": "Caja",
+            },
+        },
+    ]
+}
+
+evaluated_journal_book_data = {
+    "journalBookEntries": [
+        {
+            "entryNumber": 1,
+            "date": "2023-10-10",
+            "debit": 100,
+            "credit": 0,
+            "concept": "Compra de productos en inventario",
+            "account": {
+                "accountCode": "1.01.01",
+                "accountName": "Inventario de Mercancias",
+            },
+            "unbalanced": False,
+        },
+        {
+            "entryNumber": 1,
+            "date": "2023-10-10",
+            "debit": 0,
+            "credit": 100,
+            "concept": "Pago de la compra de mercancia al contado",
+            "account": {
+                "accountCode": "1.02.01",
+                "accountName": "Caja",
+            },
+            "unbalanced": False,
+        },
+    ],
+    "unbalanced": False,
+    "unbalancedEntries": [],
+}
+
+ledger_book_data = {
+    "ledgerBookEntries": [
+        {
+            "accountCode": "1.01.01",
+            "accountName": "Inventario de Mercancias",
+            "entries": [
+                {
+                    "entryNumber": 1,
+                    "date": "2023-10-10",
+                    "debit": 100,
+                    "credit": 0,
+                }
+            ],
+            "debit": 100,
+            "credit": 0,
+            "balance": 100.0,
+            "balanceType": BalanceType.DEBIT,
+        },
+        {
+            "accountCode": "1.02.01",
+            "accountName": "Caja",
+            "entries": [
+                {
+                    "entryNumber": 1,
+                    "date": "2023-10-10",
+                    "debit": 0,
+                    "credit": 100,
+                }
+            ],
+            "credit": 100,
+            "debit": 0,
+            "balance": 100.0,
+            "balanceType": BalanceType.CREDIT,
+        },
+    ]
+}
+
+trial_balance_data = {
+    "accountsSummary": [
+        {
+            "accountCode": "1.01.01",
+            "accountName": "Inventario de Mercancias",
+            "debit": 100,
+            "credit": 0,
+            "debitBalance": 100,
+            "creditBalance": 0,
+            "balance": 100,
+        },
+        {
+            "accountCode": "1.02.01",
+            "accountName": "Caja",
+            "debit": 0,
+            "credit": 100,
+            "debitBalance": 0,
+            "creditBalance": 100,
+            "balance": 100,
+        },
+    ],
+    "totalDebit": 100,
+    "totalCredit": 100,
+    "totalDebitBalance": 100,
+    "totalCreditBalance": 100,
+    "isBalanced": True,
+}
+
+income_statement_data = {
+    "entries": [
+        ["INGRESOS POR VENTAS", None, 0.0, None, None],
+        ["VENTAS POR ACTIVIDAD", 0.0, None, None, None],
+        ["COSTOS DE PRODUCCIÓN", None, 0.0, None, None],
+        ["COSTOS DE MATERIALES", 0.0, None, None, None],
+        ["COSTOS DE MANO DE OBRA", 0.0, None, None, None],
+        ["COSTOS INDIRECTOS DE FABRICACIÓN", 0.0, None, None, None],
+        ["GASTOS OPERATIVOS", None, 0.0, None, None],
+        ["GASTOS DE ADMINISTRACIÓN", 0.0, None, None, None],
+        ["GASTOS DE VENTA", 0.0, None, None, None],
+        ["GASTOS FINANCIEROS", 0.0, None, None, None],
+        ["UTILIDAD ANTES DE IMPUESTOS", None, 0, None, None],
+        ["IMPUESTOS", None, 0.0, None, None],
+        ["UTILIDAD O PERDIDA DEL EJERCICIO", None, 0.0, None, None],
+    ],
+    "beforeTax": 0,
+    "tax": 0.0,
+    "profitOrLoss": 0.0,
+}
+
+balance_sheet_data = {
+    "assets": {
+        "1": {
+            "accountCode": "1",
+            "accountName": "ACTIVO",
+            "isGroup": True,
+            "isSubgroup": False,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "1.01": {
+            "accountCode": "1.01",
+            "accountName": "ACTIVO CIRCULANTE",
+            "isGroup": False,
+            "isSubgroup": True,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "1.01.01": {
+            "accountCode": "1.01.01",
+            "accountName": "CAJA GENERAL",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 100,
+        },
+        "1.01.02": {
+            "accountCode": "1.01.02",
+            "accountName": "CAJA CHICA",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.01.03": {
+            "accountCode": "1.01.03",
+            "accountName": "BANCOS",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.01.04": {
+            "accountCode": "1.01.04",
+            "accountName": "INVENTARIOS",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.01.05": {
+            "accountCode": "1.01.05",
+            "accountName": "CLIENTES",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.01.06": {
+            "accountCode": "1.01.06",
+            "accountName": "DOCUMENTOS POR COBRAR",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.01.07": {
+            "accountCode": "1.01.07",
+            "accountName": "DEUDORES DIVERSOS",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.01.08": {
+            "accountCode": "1.01.08",
+            "accountName": "FUNCIONARIOS Y EMPLEADOS",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.01.09": {
+            "accountCode": "1.01.09",
+            "accountName": "PAPELERIA Y UTILES",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.02": {
+            "accountCode": "1.02",
+            "accountName": "ACTIVO FIJO",
+            "isGroup": False,
+            "isSubgroup": True,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "1.02.01": {
+            "accountCode": "1.02.01",
+            "accountName": "TERRENO",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 100,
+        },
+        "1.02.02": {
+            "accountCode": "1.02.02",
+            "accountName": "EDIFICIO",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.02.03": {
+            "accountCode": "1.02.03",
+            "accountName": "MAQUINARIA Y EQUIPO",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.02.04": {
+            "accountCode": "1.02.04",
+            "accountName": "MOBILIARIO Y EQUIPO DE OFICINA",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.02.05": {
+            "accountCode": "1.02.05",
+            "accountName": "EQUIPO DE TRANSPORTE",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "1.02.06": {
+            "accountCode": "1.02.06",
+            "accountName": "EQUIPO DE ENTREGA Y REPARTO",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+    },
+    "liability": {
+        "2": {
+            "accountCode": "2",
+            "accountName": "PASIVO",
+            "isGroup": True,
+            "isSubgroup": False,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "2.01": {
+            "accountCode": "2.01",
+            "accountName": "PASIVO CIRCULANTE",
+            "isGroup": False,
+            "isSubgroup": True,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "2.01.01": {
+            "accountCode": "2.01.01",
+            "accountName": "PROVEEDORES",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "2.01.02": {
+            "accountCode": "2.01.02",
+            "accountName": "ACREEDORES DIVERSOS",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "2.01.03": {
+            "accountCode": "2.01.03",
+            "accountName": "DOCUMENTOS POR PAGAR",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "2.01.04": {
+            "accountCode": "2.01.04",
+            "accountName": "IMPUESTOS POR PAGAR",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "2.01.05": {
+            "accountCode": "2.01.05",
+            "accountName": "INTERESES POR PAGAR",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "2.01.06": {
+            "accountCode": "2.01.06",
+            "accountName": "SUELDOS ACUMULADOS POR PAGAR",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "2.02": {
+            "accountCode": "2.02",
+            "accountName": "PASIVO FIJO",
+            "isGroup": False,
+            "isSubgroup": True,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "2.02.01": {
+            "accountCode": "2.02.01",
+            "accountName": "DOCUMENTOS POR PAGAR A LARGO PLAZO",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+    },
+    "equity": {
+        "3": {
+            "accountCode": "3",
+            "accountName": "PATRIMONIO",
+            "isGroup": True,
+            "isSubgroup": False,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "3.01": {
+            "accountCode": "3.01",
+            "accountName": "CAPITAL SOCIAL",
+            "isGroup": False,
+            "isSubgroup": True,
+            "isEntity": False,
+            "balance": 0,
+        },
+        "3.01.01": {
+            "accountCode": "3.01.01",
+            "accountName": "CAPITAL CONTABLE",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "3.01.02": {
+            "accountCode": "3.01.02",
+            "accountName": "UTILIDAD DEL EJERCICIO",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+        "3.01.03": {
+            "accountCode": "3.01.03",
+            "accountName": "PERDIDA DEL EJERCICIO",
+            "isGroup": False,
+            "isSubgroup": False,
+            "isEntity": True,
+            "balance": 0,
+        },
+    },
+}

@@ -1,314 +1,17 @@
 from collections import defaultdict
 
 from app.models.financial_statement import (
-    Account,
+    AccountCatalog,
+    AccountGroup,
     BalanceType,
     EntryBase,
+    IncomeStatement,
     JournalBook,
     LedgerBook,
     LedgerBookAccount,
     TrialBalance,
     TrialBalanceAccount,
 )
-
-
-def accounts_catalog():
-    catalog: list[Account] = [
-        {
-            "account_code": 1,
-            "account_name": "ACTIVO",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 101,
-            "account_name": "ACTIVO CIRCULANTE",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10101,
-            "account_name": "CAJA GENERAL",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10102,
-            "account_name": "CAJA CHICA",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10103,
-            "account_name": "BANCOS",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10104,
-            "account_name": "INVENTARIOS",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10105,
-            "account_name": "CLIENTES",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10106,
-            "account_name": "DOCUMENTOS POR COBRAR",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10107,
-            "account_name": "DEUDORES DIVERSOS",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10108,
-            "account_name": "FUNCIONARIOS Y EMPLEADOS",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10109,
-            "account_name": "PAPELERIA Y UTILES",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 102,
-            "account_name": "ACTIVO FIJO",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10201,
-            "account_name": "TERRENO",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10202,
-            "account_name": "EDIFICIO",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10203,
-            "account_name": "MAQUINARIA Y EQUIPO",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10204,
-            "account_name": "MOBILIARIO Y EQUIPO DE OFICINA",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10205,
-            "account_name": "EQUIPO DE TRANSPORTE",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 10206,
-            "account_name": "EQUIPO DE ENTREGA Y REPARTO",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 2,
-            "account_name": "PASIVO",
-            "account_group": 1,
-            "description": "",
-        },
-        {
-            "account_code": 201,
-            "account_name": "PASIVO CIRCULANTE",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 20101,
-            "account_name": "PROVEEDORES",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 20102,
-            "account_name": "ACREEDORES DIVERSOS",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 20103,
-            "account_name": "DOCUMENTOS POR PAGAR",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 20104,
-            "account_name": "IMPUESTOS POR PAGAR",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 20105,
-            "account_name": "INTERESES POR PAGAR",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 20106,
-            "account_name": "SUELDOS ACUMULADOS POR PAGAR",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 202,
-            "account_name": "PASIVO FIJO",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 20201,
-            "account_name": "DOCUMENTOS POR PAGAR A LARGO PLAZO",
-            "account_group": 2,
-            "description": "",
-        },
-        {
-            "account_code": 3,
-            "account_name": "PATRIMONIO",
-            "account_group": 3,
-            "description": "",
-        },
-        {
-            "account_code": 301,
-            "account_name": "CAPITAL SOCIAL",
-            "account_group": 3,
-            "description": "",
-        },
-        {
-            "account_code": 30101,
-            "account_name": "CAPITAL CONTABLE",
-            "account_group": 3,
-            "description": "",
-        },
-        {
-            "account_code": 302,
-            "account_name": "UTILIDAD O PERDIDA DEL EJERCICIO",
-            "account_group": 3,
-            "description": "",
-        },
-        {
-            "account_code": 30201,
-            "account_name": "UTILIDAD O PERDIDA DEL EJERCICIO",
-            "account_group": 3,
-            "description": "",
-        },
-        {
-            "account_code": 4,
-            "account_name": "INGRESOS",
-            "account_group": 4,
-            "description": "",
-        },
-        {
-            "account_code": 401,
-            "account_name": "INGRESOS POR VENTAS",
-            "account_group": 4,
-            "description": "",
-        },
-        {
-            "account_code": 40101,
-            "account_name": "VENTAS POR ACTIVIDAD",
-            "account_group": 4,
-            "description": "",
-        },
-        {
-            "account_code": 5,
-            "account_name": "EGRESOS",
-            "account_group": 5,
-            "description": "",
-        },
-        {
-            "account_code": 501,
-            "account_name": "GASTOS OPERATIVOS",
-            "account_group": 5,
-            "description": "",
-        },
-        {
-            "account_code": 50101,
-            "account_name": "GASTOS DE ADMINISTRACIÓN",
-            "account_group": 5,
-            "description": "",
-        },
-        {
-            "account_code": 50102,
-            "account_name": "GASTOS DE VENTA",
-            "account_group": 5,
-            "description": "",
-        },
-        {
-            "account_code": 50103,
-            "account_name": "GASTOS FINANCIEROS",
-            "account_group": 5,
-            "description": "",
-        },
-        {
-            "account_code": 6,
-            "account_name": "COSTOS",
-            "account_group": 6,
-            "description": "",
-        },
-        {
-            "account_code": 601,
-            "account_name": "COSTOS DE PRODUCCIÓN",
-            "account_group": 6,
-            "description": "",
-        },
-        {
-            "account_code": 60101,
-            "account_name": "COSTOS DE MATERIALES",
-            "account_group": 6,
-            "description": "",
-        },
-        {
-            "account_code": 60102,
-            "account_name": "COSTOS DE MANO DE OBRA",
-            "account_group": 6,
-            "description": "",
-        },
-        {
-            "account_code": 60103,
-            "account_name": "COSTOS INDIRECTOS DE FABRICACIÓN",
-            "account_group": 6,
-            "description": "",
-        },
-        {
-            "account_code": 7,
-            "account_name": "CUENTA DE CIERRE",
-            "account_group": 7,
-            "description": "",
-        },
-        {
-            "account_code": 701,
-            "account_name": "RESUMEN DE INGRESOS Y GASTOS",
-            "account_group": 7,
-            "description": "",
-        },
-        {
-            "account_code": 70101,
-            "account_name": "PERDIDAS Y GANANCIAS",
-            "account_group": 7,
-            "description": "",
-        },
-    ]
 
 
 # Evaluate Data Dairy Book
@@ -383,7 +86,6 @@ def create_ledger_book(journal_book: JournalBook) -> LedgerBook:
             ledger_entries[account.account_code] = LedgerBookAccount(
                 account_code=account.account_code,
                 account_name=account.account_name,
-                account_group=account.account_group,
                 entries=[],
                 debit=0.0,
                 credit=0.0,
@@ -436,11 +138,11 @@ def create_trial_balance(ledger_book: LedgerBook) -> TrialBalance:
             accounts_entries[account.account_code] = TrialBalanceAccount(
                 account_code=account.account_code,
                 account_name=account.account_name,
-                account_group=account.account_group,
-                total_debit=account.debit,
-                total_credit=account.credit,
+                debit=account.debit,
+                credit=account.credit,
                 debit_balance=0.0,
                 credit_balance=0.0,
+                balance=0.0,
             )
 
         # Actualizar los totales de débito y crédito según el tipo de saldo
@@ -448,6 +150,8 @@ def create_trial_balance(ledger_book: LedgerBook) -> TrialBalance:
             accounts_entries[account.account_code].debit_balance = account.balance
         elif balance_type == BalanceType.CREDIT:
             accounts_entries[account.account_code].credit_balance = account.balance
+
+        accounts_entries[account.account_code].balance = account.balance
 
     accounts_summary = list(accounts_entries.values())
 
@@ -461,9 +165,83 @@ def create_trial_balance(ledger_book: LedgerBook) -> TrialBalance:
         accounts_summary=accounts_summary,
         total_debit=total_debit,
         total_credit=total_credit,
-        debit_balance=debit_balance,
-        credit_balance=credit_balance,
+        total_debit_balance=debit_balance,
+        total_credit_balance=credit_balance,
         is_balanced=is_balanced,
     )
 
     return trial_balance
+
+
+def create_income_statement(
+    trial_balance: TrialBalance, account_catalog: AccountCatalog, tax_rate: float
+) -> IncomeStatement:
+    revenue_accounts: dict[str, TrialBalanceAccount] = {}
+    expense_accounts: dict[str, TrialBalanceAccount] = {}
+    last_column = 0
+
+    # evaluate income group account
+    for account in trial_balance.accounts_summary:
+        account_group = account.get_group()
+        if account_group == AccountGroup.REVENUE:
+            revenue_accounts[account.account_code] = account
+        elif account_group == AccountGroup.EXPENSE:
+            expense_accounts[account.account_code] = account
+
+    income_statement = []
+
+    for account in account_catalog.accounts:
+        # Determinar si hay que añadirlo al estado de resultados
+        if (
+            account.get_group() in [AccountGroup.REVENUE, AccountGroup.EXPENSE]
+            and account.belongs_to_income_statement
+        ):
+            # Comprobar si la cuenta existe en el Balance de Comprobación
+            if account.account_code in revenue_accounts:
+                balance = revenue_accounts[account.account_code].balance
+            elif account.account_code in expense_accounts:
+                balance = expense_accounts[account.account_code].balance
+            else:
+                balance = 0.0  # Valor predeterminado si la cuenta no existe en el Balance de Comprobación
+
+            # Determinar la posicion en la que hay que añadirlo
+            column = account.order_in_income_statement
+            column_values = [None, None, None, None]
+            column_values[column] = balance
+
+            if column > last_column:
+                last_column = column
+
+            row = [account.account_name] + column_values
+            income_statement.append(row)
+
+    last_column += 1
+
+    column_values = [None, None, None, None]
+    before_tax = ["UTILIDAD ANTES DE IMPUESTOS"] + column_values
+    total_revenue = sum(
+        account.balance
+        for account in revenue_accounts.values()
+        if account.order_in_income_statement == last_column
+    )
+    total_expense = sum(
+        account.balance
+        for account in expense_accounts.values()
+        if account.order_in_income_statement == last_column
+    )
+    before_tax_value = total_revenue - total_expense
+    before_tax[last_column] = round(before_tax_value, 2)
+
+    tax = ["IMPUESTOS"] + column_values
+    tax_value = before_tax_value * tax_rate
+    tax[last_column] = round(tax_value, 2)
+
+    profit_or_loss = ["UTILIDAD O PERDIDA DEL EJERCICIO"] + column_values
+    profit_or_loss_value = before_tax_value - tax_value
+    profit_or_loss[last_column] = round(profit_or_loss_value, 2)
+
+    income_statement.append(before_tax)
+    income_statement.append(tax)
+    income_statement.append(profit_or_loss)
+
+    return IncomeStatement(entries=income_statement)

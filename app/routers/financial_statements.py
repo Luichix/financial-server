@@ -28,7 +28,7 @@ async def get_account_catalog():
 
 
 @router.post(
-    "/evaluate_jornal_book",
+    "/evaluate_journal_book",
     response_model=JournalBook,
 )
 async def validate_journal_book(

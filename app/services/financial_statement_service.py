@@ -10,6 +10,7 @@ from app.models.financial_statement import (
     EntryBase,
     IncomeStatement,
     JournalBook,
+    JournalBookEntry,
     LedgerBook,
     LedgerBookAccount,
     TrialBalance,
@@ -18,35 +19,49 @@ from app.models.financial_statement import (
 
 
 # Evaluate Data Dairy Book
+from typing import List, Dict
+
+
+def group_entries_by_entry_number(
+    entries: List[JournalBookEntry],
+) -> Dict[int, List[JournalBookEntry]]:
+    # Creamos un diccionario para agrupar las entradas por entryNumber
+    grouped_entries: Dict[int, List[JournalBookEntry]] = {}
+
+    for entry in entries:
+        entry_number = entry.entry_number
+        if entry_number not in grouped_entries:
+            grouped_entries[entry_number] = []
+        grouped_entries[entry_number].append(entry)
+
+    return grouped_entries
+
+
 def evaluate_journal_book(journal_book: JournalBook) -> JournalBook:
     journal_book_entries = journal_book.journal_book_entries
+    grouped_entries = group_entries_by_entry_number(journal_book_entries)
+
+    evaluated_journal_book_entries = []
     unbalanced_entries = []
-    unbalanced = None
-    for entry in journal_book_entries:
-        debit_total = sum(
-            entry.debit
-            for entry in journal_book_entries
-            if entry.entry_number == entry.entry_number
-        )
-        credit_total = sum(
-            entry.credit
-            for entry in journal_book_entries
-            if entry.entry_number == entry.entry_number
-        )
+    unbalanced = False
 
-        if debit_total != credit_total:
-            entry.unbalanced = True
-            unbalanced_entries.append(entry)
-        else:
-            entry.unbalanced = False
+    for entryNumber, entries in grouped_entries.items():
+        debit_total = sum(entry.debit for entry in entries)
+        credit_total = sum(entry.credit for entry in entries)
 
-    if not unbalanced_entries:
-        unbalanced = False
-    else:
-        unbalanced = True
+        is_unbalanced = debit_total != credit_total
+
+        for entry in entries:
+            entry.unbalanced = is_unbalanced
+
+        if is_unbalanced:
+            unbalanced = True
+            unbalanced_entries.extend(entries)
+
+        evaluated_journal_book_entries.extend(entries)
 
     return JournalBook(
-        journalBookEntries=journal_book_entries,
+        journalBookEntries=evaluated_journal_book_entries,
         unbalanced=unbalanced,
         unbalancedEntries=unbalanced_entries,
     )

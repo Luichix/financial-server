@@ -321,7 +321,7 @@ journal_book_data = {
             "date": "2023-10-10",
             "debit": 100,
             "credit": 0,
-            "concept": "Compra de productos en inventario",
+            "concept": "Ingreso de productos en inventario",
             "account": {
                 "accountCode": "1.01.04",
                 "accountName": "INVENTARIOS",
@@ -334,8 +334,8 @@ journal_book_data = {
             "credit": 100,
             "concept": "Pago de la compra de mercancia al contado",
             "account": {
-                "accountCode": "1.02.01",
-                "accountName": "Caja",
+                "accountCode": "1.01.01",
+                "accountName": "CAJA GENERAL",
             },
         },
     ]

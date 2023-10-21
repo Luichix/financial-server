@@ -30,7 +30,6 @@ class TestAmortizationTable:
             "/amortization_table?amortizationType=French",
             json=self.body,
         )
-        # print(response)
         assert response.status_code == 200
         assert response.json()["principal"] == 10000
         assert response.json()["interestPayment"] == 549.91
@@ -50,7 +49,6 @@ class TestAmortizationTable:
             "/amortization_table?amortizationType=American",
             json=self.body,
         )
-        # print(response)
         assert response.status_code == 200
         assert response.json()["principal"] == 10000
         assert response.json()["interestPayment"] == 1000

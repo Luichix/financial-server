@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from datetime import date
 
 
+# Setup Accounts Models
 class AccountGroup(str, Enum):
     ASSETS = 1
     LIABILITIES = 2
@@ -11,28 +12,52 @@ class AccountGroup(str, Enum):
     EXPENSE = 5
 
 
+class BalanceType(str, Enum):
+    DEBIT = "debit"
+    CREDIT = "credit"
+
+
+class AccountingMethod(str, Enum):
+    PERPETUAL = "perpetual"
+    ANALYTICAL = "analytical"
+
+
 class IncomeStatementAccountNames(str, Enum):
     SALES = "sales"
-    SALES_RETURNS = "sales_returns"
-    SALES_DISCOUNTS = "sales_discounts"
-    SALES_ALLOWANCES = "sales_allowances"
+    SALES_RETURNS = "salesReturns"
+    SALES_DISCOUNTS = "salesDiscounts"
+    SALES_ALLOWANCES = "salesAllowances"
+    SALES_COST = "salesCost"
     PURCHASES = "purchases"
-    PURCHASING_EXPENSES = "purchasing_expenses"
-    PURCHASES_RETURNS = "purchases_returns"
-    PURCHASES_DISCOUNTS = "purchases_discounts"
-    PURCHASES_ALLOWANCES = "purchases_allowances"
-    BEGINNING_INVENTORY = "beginning_inventory"
-    ENDING_INVENTORY = "ending_inventory"
-    DIRECT_MATERIAL = "direct_material"
-    DIRECT_LABOR = "direct_labor"
-    FACTORY_OVERHEAD = "factory_overhead"
-    SALES_EXPENSES = "sales_expenses"
-    ADMINISTRATIVE_EXPENSES = "administrative_expenses"
-    FINANCIAL_EXPENSES = "financial_expenses"
-    OTHER_EXPENSES = "other_expenses"
-    OTHER_PRODUCTS = "other_products"
+    PURCHASING_EXPENSES = "purchasingExpenses"
+    PURCHASES_RETURNS = "purchasesReturns"
+    PURCHASES_DISCOUNTS = "purchasesDiscounts"
+    PURCHASES_ALLOWANCES = "purchasesAllowances"
+    BEGINNING_INVENTORY = "beginningInventory"
+    ENDING_INVENTORY = "endingInventory"
+    DIRECT_MATERIAL = "directMaterial"
+    DIRECT_LABOR = "directLabor"
+    FACTORY_OVERHEAD = "factoryOverhead"
+    SALES_EXPENSES = "salesExpenses"
+    ADMINISTRATIVE_EXPENSES = "administrativeExpenses"
+    FINANCIAL_EXPENSES = "financialExpenses"
+    OTHER_EXPENSES = "otherExpenses"
+    OTHER_PRODUCTS = "otherProducts"
+
+    @classmethod
+    def get_values(cls):
+        return [item.value for item in cls]
 
 
+# Entry Models
+class EntryBase(BaseModel):
+    entry_number: int = Field(title="Entry Number", alias="entryNumber")
+    date: date
+    debit: float
+    credit: float
+
+
+# Account Models
 class AccountBase(BaseModel):
     account_code: str = Field(title="Account Code", alias="accountCode")
     account_name: str = Field(title="Account Name", alias="accountName")
@@ -52,18 +77,6 @@ class AccountBase(BaseModel):
         return codes[0]
 
 
-class BalanceType(str, Enum):
-    DEBIT = "Debit"
-    CREDIT = "Credit"
-
-
-class EntryBase(BaseModel):
-    entry_number: int = Field(title="Entry Number", alias="entryNumber")
-    date: date
-    debit: float
-    credit: float
-
-
 class Account(AccountBase):
     description: str = ""
     related_accounts: list[str] = Field(
@@ -79,10 +92,12 @@ class Account(AccountBase):
     )
 
 
+# Account Catalog Models
 class AccountCatalog(BaseModel):
     accounts: list[Account] = []
 
 
+# Journal Book Models
 class JournalBookEntry(EntryBase):
     concept: str
     account: AccountBase
@@ -99,6 +114,7 @@ class JournalBook(BaseModel):
     )
 
 
+# Ledger Book Models
 class LedgerBookAccount(AccountBase):
     entries: list[EntryBase]
     debit: float
@@ -113,6 +129,7 @@ class LedgerBook(BaseModel):
     )
 
 
+# Trial Balance Models
 class TrialBalanceAccount(AccountBase):
     debit: float
     credit: float
@@ -147,12 +164,13 @@ class TrialBalance(BaseModel):
         return 0.0
 
 
+# Income Statement Models
 class NetSales(BaseModel):
     sales: float
-    sales_returns: float
-    sales_discounts: float
-    sales_allowances: float
-    net_sales: float = 0
+    sales_returns: float = Field(alias="salesReturns")
+    sales_discounts: float = Field(alias="salesDiscounts")
+    sales_allowances: float = Field(alias="salesAllowances")
+    net_sales: float = Field(alias="netSales", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -167,12 +185,12 @@ class NetSales(BaseModel):
 
 class NetPurchases(BaseModel):
     purchases: float
-    purchasing_expenses: float
-    total_purchases: float = 0
-    purchases_returns: float
-    purchases_discounts: float
-    purchases_allowances: float
-    net_purchases: float = 0
+    purchasing_expenses: float = Field(alias="purchasingExpenses")
+    total_purchases: float = Field(alias="totalPurchases", default=0)
+    purchases_returns: float = Field(alias="purchasesReturns")
+    purchases_discounts: float = Field(alias="purchasesDiscounts")
+    purchases_allowances: float = Field(alias="purchasesAllowances")
+    net_purchases: float = Field(alias="netPurchases", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -188,11 +206,15 @@ class NetPurchases(BaseModel):
         self.net_purchases = net_purchases
 
 
-class SalesCost(BaseModel):
-    beginning_inventory: float
+class SalesCostPerpetual(BaseModel):
+    sales_cost: float = Field(alias="salesCost")
+
+
+class SalesCostAnalytical(BaseModel):
+    beginning_inventory: float = Field(alias="beginningInventory")
     purchases: float
-    ending_inventory: float
-    sales_cost: float = 0
+    ending_inventory: float = Field(alias="endingInventory")
+    sales_cost: float = Field(alias="salesCost", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -201,25 +223,10 @@ class SalesCost(BaseModel):
         self.sales_cost = sales_cost
 
 
-class ProductionCost(BaseModel):
-    direct_material: float
-    direct_labor: float
-    factory_overhead: float
-    production_costs: float = 0
-
-    def __init__(self, **data):
-        super().__init__(**data)
-        production_costs = (
-            self.direct_material + self.direct_labor + self.factory_overhead
-        )
-
-        self.production_costs = production_costs
-
-
 class GrossMargin(BaseModel):
-    sales_revenue: float
-    sales_cost: float
-    gross_profit: float = 0
+    sales_revenue: float = Field(alias="salesRevenue")
+    sales_cost: float = Field(alias="salesCost")
+    gross_profit: float = Field(alias="grossProfit", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -227,10 +234,10 @@ class GrossMargin(BaseModel):
 
 
 class OperatingExpenses(BaseModel):
-    sales_expenses: float
-    administrative_expenses: float
-    financial_expenses: float
-    operating_expenses: float = 0
+    sales_expenses: float = Field(alias="salesExpenses")
+    administrative_expenses: float = Field(alias="administrativeExpenses")
+    financial_expenses: float = Field(alias="financialExpenses")
+    operating_expenses: float = Field(alias="operatingExpenses", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -240,9 +247,9 @@ class OperatingExpenses(BaseModel):
 
 
 class OperatingIncome(BaseModel):
-    gross_margin: float
-    operating_expenses: float
-    operating_income: float = 0
+    gross_margin: float = Field(alias="grossMargin")
+    operating_expenses: float = Field(alias="operatingExpenses")
+    operating_income: float = Field(alias="operatingIncome", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -250,10 +257,10 @@ class OperatingIncome(BaseModel):
 
 
 class IncomeBeforeTaxes(BaseModel):
-    operating_income: float
-    other_expenses: float
-    other_products: float
-    income_before_taxes: float = 0
+    operating_income: float = Field(alias="operatingIncome")
+    other_expenses: float = Field(alias="otherExpenses")
+    other_products: float = Field(alias="otherProducts")
+    income_before_taxes: float = Field(alias="incomeBeforeTaxes", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -264,10 +271,10 @@ class IncomeBeforeTaxes(BaseModel):
 
 
 class NetIncome(BaseModel):
-    income_before_taxes: float
-    tax_rate: float
-    income_tax_expense: float = 0
-    net_income: float = 0
+    income_before_taxes: float = Field(alias="incomeBeforeTaxes")
+    tax_rate: float = Field(alias="taxRate")
+    income_tax_expense: float = Field(alias="incomeTaxExpense", default=0)
+    net_income: float = Field(alias="netIncome", default=0)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -279,38 +286,51 @@ class NetIncome(BaseModel):
 
 class IncomeStatementAccounts(BaseModel):
     sales: float = 0
-    sales_returns: float = 0
-    sales_discounts: float = 0
-    sales_allowances: float = 0
+    sales_returns: float = Field(alias="salesReturns", default=0)
+    sales_discounts: float = Field(alias="salesDiscounts", default=0)
+    sales_allowances: float = Field(alias="salesAllowances", default=0)
+    sales_cost: float = Field(alias="salesCost", default=0)
     purchases: float = 0
-    purchasing_expenses: float = 0
-    purchases_returns: float = 0
-    purchases_discounts: float = 0
-    purchases_allowances: float = 0
-    beginning_inventory: float = 0
-    ending_inventory: float = 0
-    direct_material: float = 0
-    direct_labor: float = 0
-    factory_overhead: float = 0
-    sales_expenses: float = 0
-    administrative_expenses: float = 0
-    financial_expenses: float = 0
-    other_expenses: float = 0
-    other_products: float = 0
+    purchasing_expenses: float = Field(alias="purchasingExpenses", default=0)
+    purchases_returns: float = Field(alias="purchasesReturns", default=0)
+    purchases_discounts: float = Field(alias="purchasesDiscounts", default=0)
+    purchases_allowances: float = Field(alias="purchasesAllowances", default=0)
+    beginning_inventory: float = Field(alias="beginningInventory", default=0)
+    ending_inventory: float = Field(alias="endingInventory", default=0)
+    direct_material: float = Field(alias="directMaterial", default=0)
+    direct_labor: float = Field(alias="directLabor", default=0)
+    factory_overhead: float = Field(alias="factoryOverhead", default=0)
+    sales_expenses: float = Field(alias="salesExpenses", default=0)
+    administrative_expenses: float = Field(alias="administrativeExpenses", default=0)
+    financial_expenses: float = Field(alias="financialExpenses", default=0)
+    other_expenses: float = Field(alias="otherExpenses", default=0)
+    other_products: float = Field(alias="otherProducts", default=0)
+
+
+class IncomeStatementBase(BaseModel):
+    net_sales: NetSales = Field(alias="netSales")
+    gross_margin: GrossMargin = Field(alias="grossMargin")
+    operating_expenses: OperatingExpenses = Field(alias="operatingExpenses")
+    operating_income: OperatingIncome = Field(alias="operatingIncome")
+    income_before_taxes: IncomeBeforeTaxes = Field(alias="incomeBeforeTaxes")
+    net_income: NetIncome = Field(alias="netIncome")
+
+
+class PerpetualMethod(IncomeStatementBase):
+    sales_cost: SalesCostPerpetual = Field(alias="salesCost")
+
+
+class AnalyticalMethod(IncomeStatementBase):
+    net_purchases: NetPurchases = Field(alias="netPurchases")
+    sales_cost: SalesCostAnalytical = Field(alias="salesCost")
 
 
 class IncomeStatement(BaseModel):
-    net_sales: NetSales
-    net_purchases: NetPurchases
-    sales_cost: SalesCost
-    production_cost: ProductionCost
-    gross_margin: GrossMargin
-    operating_expenses: OperatingExpenses
-    operating_income: OperatingIncome
-    income_before_taxes: IncomeBeforeTaxes
-    net_income: NetIncome
+    accounting_method: AccountingMethod = Field(alias="accountingMethod")
+    earnings_income: PerpetualMethod | AnalyticalMethod = Field(alias="earningsIncome")
 
 
+# Balance Sheet Models
 class BalanceSheetAccount(AccountBase):
     balance: float
 
@@ -319,3 +339,19 @@ class BalanceSheet(BaseModel):
     assets: dict[str, BalanceSheetAccount] = {}
     liability: dict[str, BalanceSheetAccount] = {}
     equity: dict[str, BalanceSheetAccount] = {}
+
+
+# Production and Sales Cost Statement Models
+class ProductionCost(BaseModel):
+    direct_material: float = Field(alias="directMaterial")
+    direct_labor: float = Field(alias="directLabor")
+    factory_overhead: float = Field(alias="factoryOverhead")
+    production_costs: float = Field(alias="productionCosts", default=0)
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        production_costs = (
+            self.direct_material + self.direct_labor + self.factory_overhead
+        )
+
+        self.production_costs = production_costs

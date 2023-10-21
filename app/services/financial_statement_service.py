@@ -4,6 +4,8 @@ from app.models.financial_statement import (
     Account,
     AccountCatalog,
     AccountGroup,
+    AccountingMethod,
+    AnalyticalMethod,
     BalanceSheet,
     BalanceSheetAccount,
     BalanceType,
@@ -11,6 +13,7 @@ from app.models.financial_statement import (
     EntryBase,
     GrossMargin,
     IncomeBeforeTaxes,
+    IncomeStatementAccountNames,
     IncomeStatementAccounts,
     JournalBook,
     JournalBookEntry,
@@ -21,8 +24,10 @@ from app.models.financial_statement import (
     NetSales,
     OperatingExpenses,
     OperatingIncome,
+    PerpetualMethod,
     ProductionCost,
-    SalesCost,
+    SalesCostPerpetual,
+    SalesCostAnalytical,
     TrialBalance,
     TrialBalanceAccount,
 )
@@ -206,30 +211,7 @@ def extract_income_statement_accounts(
     trial_balance: TrialBalance, account_catalog: AccountCatalog
 ) -> IncomeStatementAccounts:
     # List of account names in Income Statement
-    income_statement_account_names = [
-        "sales",
-        "sales_returns",
-        "sales_discounts",
-        "sales_allowances",
-        "purchases",
-        "purchasing_expenses",
-        "purchases_returns",
-        "purchases_discounts",
-        "purchases_allowances",
-        "beginning_inventory",
-        "purchases",
-        "ending_inventory",
-        "direct_material",
-        "direct_labor",
-        "factory_overhead",
-        "sales_revenue",
-        "sales_cost",
-        "sales_expenses",
-        "administrative_expenses",
-        "financial_expenses",
-        "other_expenses",
-        "other_products",
-    ]
+    income_statement_account_names = IncomeStatementAccountNames.get_values()
 
     # Initialize a dictionary for save all accounts required in Income Statement
     income_statement_accounts_data = {
@@ -244,8 +226,8 @@ def extract_income_statement_accounts(
         # Verify if the account is in the account catalog
         for account in account_catalog.accounts:
             if account.account_code == account_code:
-                print(account)
                 # Verify if the account is Income Statement
+
                 if (
                     account.income_statement_account_name
                     in income_statement_account_names
@@ -264,7 +246,10 @@ def extract_income_statement_accounts(
 
 
 def create_income_statement(
-    trial_balance: TrialBalance, account_catalog: AccountCatalog, tax_rate: float
+    trial_balance: TrialBalance,
+    account_catalog: AccountCatalog,
+    tax_rate: float,
+    accounting_method: AccountingMethod,
 ) -> IncomeStatement:
     # Extrae las cuentas de Estado de Resultados del Balance de Comprobación
     income_statement_accounts = extract_income_statement_accounts(
@@ -272,38 +257,67 @@ def create_income_statement(
     )
 
     # Calcula los valores necesarios para llenar los campos de IncomeStatement
-    net_sales = NetSales(**income_statement_accounts.model_dump())
-    net_purchases = NetPurchases(**income_statement_accounts.model_dump())
-    sales_cost = SalesCost(**income_statement_accounts.model_dump())
-    production_cost = ProductionCost(**income_statement_accounts.model_dump())
+    net_sales = NetSales(**income_statement_accounts.model_dump(by_alias=True))
+
+    # Evalua el metodo de contablizacion
+    if accounting_method == AccountingMethod.PERPETUAL:
+        sales_cost = SalesCostPerpetual(
+            **income_statement_accounts.model_dump(by_alias=True)
+        )
+    elif accounting_method == AccountingMethod.ANALYTICAL:
+        net_purchases = NetPurchases(
+            **income_statement_accounts.model_dump(by_alias=True)
+        )
+        sales_cost = SalesCostAnalytical(
+            beginningInventory=0.0,
+            purchases=net_purchases.net_purchases,
+            endingInventory=income_statement_accounts.ending_inventory,
+        )
+
     gross_margin = GrossMargin(
-        sales_revenue=net_sales.net_sales, sales_cost=sales_cost.sales_cost
+        salesRevenue=net_sales.net_sales, salesCost=sales_cost.sales_cost
     )
-    operating_expenses = OperatingExpenses(**income_statement_accounts.model_dump())
+    operating_expenses = OperatingExpenses(
+        **income_statement_accounts.model_dump(by_alias=True)
+    )
     operating_income = OperatingIncome(
-        gross_margin=gross_margin.gross_profit,
-        operating_expenses=operating_expenses.operating_expenses,
+        grossMargin=gross_margin.gross_profit,
+        operatingExpenses=operating_expenses.operating_expenses,
     )
     income_before_taxes = IncomeBeforeTaxes(
-        operating_income=operating_income.operating_income,
-        other_expenses=income_statement_accounts.other_expenses,
-        other_products=income_statement_accounts.other_products,
+        operatingIncome=operating_income.operating_income,
+        otherExpenses=income_statement_accounts.other_expenses,
+        otherProducts=income_statement_accounts.other_products,
     )
     net_income = NetIncome(
-        income_before_taxes=income_before_taxes.income_before_taxes, tax_rate=tax_rate
+        incomeBeforeTaxes=income_before_taxes.income_before_taxes, taxRate=tax_rate
     )
 
     # Crea el objeto IncomeStatement con los campos calculados
+    if accounting_method == AccountingMethod.PERPETUAL:
+        earnings_income = PerpetualMethod(
+            netSales=net_sales,
+            salesCost=sales_cost,
+            grossMargin=gross_margin,
+            operatingExpenses=operating_expenses,
+            operatingIncome=operating_income,
+            incomeBeforeTaxes=income_before_taxes,
+            netIncome=net_income,
+        )
+    elif accounting_method == AccountingMethod.ANALYTICAL:
+        earnings_income = AnalyticalMethod(
+            netSales=net_sales,
+            salesCost=sales_cost,
+            netPurchases=net_purchases,
+            grossMargin=gross_margin,
+            operatingExpenses=operating_expenses,
+            operatingIncome=operating_income,
+            incomeBeforeTaxes=income_before_taxes,
+            netIncome=net_income,
+        )
+
     income_statement = IncomeStatement(
-        net_sales=net_sales,
-        net_purchases=net_purchases,
-        sales_cost=sales_cost,
-        production_cost=production_cost,
-        gross_margin=gross_margin,
-        operating_expenses=operating_expenses,
-        operating_income=operating_income,
-        income_before_taxes=income_before_taxes,
-        net_income=net_income,
+        accountingMethod=accounting_method, earningsIncome=earnings_income
     )
 
     return income_statement

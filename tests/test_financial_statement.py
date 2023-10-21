@@ -1,5 +1,6 @@
 from app.models.financial_statement import (
     AccountCatalog,
+    AnalyticalMethod,
     BalanceSheet,
     BalanceSheetAccount,
     GrossMargin,
@@ -12,8 +13,10 @@ from app.models.financial_statement import (
     NetSales,
     OperatingExpenses,
     OperatingIncome,
+    PerpetualMethod,
     ProductionCost,
-    SalesCost,
+    SalesCostPerpetual,
+    SalesCostAnalytical,
     TrialBalance,
 )
 from app.services.financial_statement_service import (
@@ -50,56 +53,93 @@ class TestFinancialStatement:
 
     # income_statement_instance = IncomeStatement(**income_statement_data)
 
-    income_statement_instance = IncomeStatement(
-        net_sales=NetSales(
-            sales=0.0,
-            sales_returns=0.0,
-            sales_discounts=0.0,
-            sales_allowances=0.0,
-            net_sales=0.0,
+    income_statement_instance_perpetual = IncomeStatement(
+        accountingMethod="perpetual",
+        earningsIncome=PerpetualMethod(
+            netSales=NetSales(
+                sales=0.0,
+                salesReturns=0.0,
+                salesDiscounts=0.0,
+                salesAllowances=0.0,
+                netSales=0.0,
+            ),
+            salesCost=SalesCostPerpetual(
+                salesCost=-0.0,
+            ),
+            grossMargin=GrossMargin(salesRevenue=0.0, salesCost=0.0, grossProfit=0.0),
+            operatingExpenses=OperatingExpenses(
+                salesExpenses=0.0,
+                administrativeExpenses=0.0,
+                financialExpenses=0.0,
+                operatingExpenses=0.0,
+            ),
+            operatingIncome=OperatingIncome(
+                grossMargin=0.0, operatingExpenses=0.0, operatingIncome=0.0
+            ),
+            incomeBeforeTaxes=IncomeBeforeTaxes(
+                operatingIncome=0.0,
+                otherExpenses=0.0,
+                otherProducts=0.0,
+                incomeBeforeTaxes=0.0,
+            ),
+            netIncome=NetIncome(
+                incomeBeforeTaxes=0.0,
+                taxRate=0.3,
+                incomeTaxExpense=0.0,
+                netIncome=0.0,
+            ),
         ),
-        net_purchases=NetPurchases(
-            purchases=0.0,
-            purchasing_expenses=0.0,
-            total_purchases=0.0,
-            purchases_returns=0.0,
-            purchases_discounts=0.0,
-            purchases_allowances=0.0,
-            net_purchases=0.0,
-        ),
-        sales_cost=SalesCost(
-            beginning_inventory=0.0,
-            purchases=0.0,
-            ending_inventory=0.0,
-            sales_cost=-0.0,
-        ),
-        production_cost=ProductionCost(
-            direct_material=0.0,
-            direct_labor=0.0,
-            factory_overhead=0.0,
-            production_costs=0.0,
-        ),
-        gross_margin=GrossMargin(sales_revenue=0.0, sales_cost=0.0, gross_profit=0.0),
-        operating_expenses=OperatingExpenses(
-            sales_expenses=0.0,
-            administrative_expenses=0.0,
-            financial_expenses=0.0,
-            operating_expenses=0.0,
-        ),
-        operating_income=OperatingIncome(
-            gross_margin=0.0, operating_expenses=0.0, operating_income=0.0
-        ),
-        income_before_taxes=IncomeBeforeTaxes(
-            operating_income=0.0,
-            other_expenses=0.0,
-            other_products=0.0,
-            income_before_taxes=0.0,
-        ),
-        net_income=NetIncome(
-            income_before_taxes=0.0,
-            tax_rate=0.3,
-            income_tax_expense=0.0,
-            net_income=0.0,
+    )
+
+    income_statement_instance_analytical = IncomeStatement(
+        accountingMethod="analytical",
+        earningsIncome=AnalyticalMethod(
+            netSales=NetSales(
+                sales=0.0,
+                salesReturns=0.0,
+                salesDiscounts=0.0,
+                salesAllowances=0.0,
+                netSales=0.0,
+            ),
+            netPurchases=NetPurchases(
+                purchases=0.0,
+                purchasingExpenses=0.0,
+                totalPurchases=0.0,
+                purchasesReturns=0.0,
+                purchasesDiscounts=0.0,
+                purchasesAllowances=0.0,
+                netPurchases=0.0,
+            ),
+            salesCost=SalesCostAnalytical(
+                beginningInventory=0.0,
+                purchases=0.0,
+                endingInventory=100.0,
+                salesCost=-100.0,
+            ),
+            grossMargin=GrossMargin(
+                salesRevenue=0.0, salesCost=-100.0, grossProfit=-100.0
+            ),
+            operatingExpenses=OperatingExpenses(
+                salesExpenses=0.0,
+                administrativeExpenses=0.0,
+                financialExpenses=0.0,
+                operatingExpenses=0.0,
+            ),
+            operatingIncome=OperatingIncome(
+                grossMargin=100.0, operatingExpenses=0.0, operatingIncome=0.0
+            ),
+            incomeBeforeTaxes=IncomeBeforeTaxes(
+                operatingIncome=100.0,
+                otherExpenses=0.0,
+                otherProducts=0.0,
+                incomeBeforeTaxes=100.0,
+            ),
+            netIncome=NetIncome(
+                incomeBeforeTaxes=100.0,
+                taxRate=0.3,
+                incomeTaxExpense=30.0,
+                netIncome=70.0,
+            ),
         ),
     )
 
@@ -129,8 +169,18 @@ class TestFinancialStatement:
                 self.trial_balance_instance,
                 self.account_catalog_instance,
                 self.tax_rate,
+                "perpetual",
             )
-            == self.income_statement_instance
+            == self.income_statement_instance_perpetual
+        )
+        assert (
+            create_income_statement(
+                self.trial_balance_instance,
+                self.account_catalog_instance,
+                self.tax_rate,
+                "analytical",
+            )
+            == self.income_statement_instance_analytical
         )
 
     def test_create_balance_sheet(self):

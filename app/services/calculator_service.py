@@ -4,7 +4,6 @@ import math
 def calculate_simple_principal(interest: float, interest_rate: float, period: int):
     try:
         principal = interest / (interest_rate * period)
-        print(principal)
         return principal
 
     except ZeroDivisionError:

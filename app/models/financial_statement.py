@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from datetime import date
 
 
@@ -327,7 +327,7 @@ class AnalyticalMethod(IncomeStatementBase):
 
 class IncomeStatement(BaseModel):
     accounting_method: AccountingMethod = Field(alias="accountingMethod")
-    earnings_income: PerpetualMethod | AnalyticalMethod = Field(alias="earningsIncome")
+    earnings_income: AnalyticalMethod | PerpetualMethod = Field(alias="earningsIncome")
 
 
 # Balance Sheet Models

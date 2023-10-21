@@ -294,7 +294,7 @@ def create_income_statement(
     )
 
     # Crea el objeto IncomeStatement con los campos calculados
-    if accounting_method == AccountingMethod.PERPETUAL:
+    if accounting_method == "perpetual":
         earnings_income = PerpetualMethod(
             netSales=net_sales,
             salesCost=sales_cost,

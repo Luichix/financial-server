@@ -348,7 +348,7 @@ evaluated_journal_book_data = {
             "date": "2023-10-10",
             "debit": 100,
             "credit": 0,
-            "concept": "Compra de productos en inventario",
+            "concept": "Ingreso de productos en inventario",
             "account": {
                 "accountCode": "1.01.04",
                 "accountName": "INVENTARIOS",
@@ -362,8 +362,8 @@ evaluated_journal_book_data = {
             "credit": 100,
             "concept": "Pago de la compra de mercancia al contado",
             "account": {
-                "accountCode": "1.02.01",
-                "accountName": "Caja",
+                "accountCode": "1.01.01",
+                "accountName": "CAJA GENERAL",
             },
             "unbalanced": False,
         },
@@ -391,8 +391,8 @@ ledger_book_data = {
             "balanceType": BalanceType.DEBIT,
         },
         {
-            "accountCode": "1.02.01",
-            "accountName": "Caja",
+            "accountCode": "1.01.01",
+            "accountName": "CAJA GENERAL",
             "entries": [
                 {
                     "entryNumber": 1,
@@ -421,8 +421,8 @@ trial_balance_data = {
             "balance": 100,
         },
         {
-            "accountCode": "1.02.01",
-            "accountName": "Caja",
+            "accountCode": "1.01.01",
+            "accountName": "CAJA GENERAL",
             "debit": 0,
             "credit": 100,
             "debitBalance": 0,
@@ -437,7 +437,103 @@ trial_balance_data = {
     "isBalanced": True,
 }
 
-income_statement_data = {}
+
+income_statement_perpetual_data = {
+    "accountingMethod": "perpetual",
+    "earningsIncome": {
+        "netSales": {
+            "sales": 0.0,
+            "salesReturns": 0.0,
+            "salesDiscounts": 0.0,
+            "salesAllowances": 0.0,
+            "netSales": 0.0,
+        },
+        "salesCost": {
+            "salesCost": -0.0,
+        },
+        "grossMargin": {"salesRevenue": 0.0, "salesCost": 0.0, "grossProfit": 0.0},
+        "operatingExpenses": {
+            "salesExpenses": 0.0,
+            "administrativeExpenses": 0.0,
+            "financialExpenses": 0.0,
+            "operatingExpenses": 0.0,
+        },
+        "operatingIncome": {
+            "grossMargin": 0.0,
+            "operatingExpenses": 0.0,
+            "operatingIncome": 0.0,
+        },
+        "incomeBeforeTaxes": {
+            "operatingIncome": 0.0,
+            "otherExpenses": 0.0,
+            "otherProducts": 0.0,
+            "incomeBeforeTaxes": 0.0,
+        },
+        "netIncome": {
+            "incomeBeforeTaxes": 0.0,
+            "taxRate": 0.3,
+            "incomeTaxExpense": 0.0,
+            "netIncome": 0.0,
+        },
+    },
+}
+
+income_statement_analytical_data = {
+    "accountingMethod": "analytical",
+    "earningsIncome": {
+        "netSales": {
+            "sales": 0.0,
+            "salesReturns": 0.0,
+            "salesDiscounts": 0.0,
+            "salesAllowances": 0.0,
+            "netSales": 0.0,
+        },
+        "netPurchases": {
+            "purchases": 0.0,
+            "purchasingExpenses": 0.0,
+            "totalPurchases": 0.0,
+            "purchasesReturns": 0.0,
+            "purchasesDiscounts": 0.0,
+            "purchasesAllowances": 0.0,
+            "netPurchases": 0.0,
+        },
+        "salesCost": {
+            "beginningInventory": 0.0,
+            "purchases": 0.0,
+            "endingInventory": 100.0,
+            "salesCost": -100.0,
+        },
+        "grossMargin": {
+            "salesRevenue": 0.0,
+            "salesCost": -100.0,
+            "grossProfit": -100.0,
+        },
+        "operatingExpenses": {
+            "salesExpenses": 0.0,
+            "administrativeExpenses": 0.0,
+            "financialExpenses": 0.0,
+            "operatingExpenses": 0.0,
+        },
+        "operatingIncome": {
+            "grossMargin": 100.0,
+            "operatingExpenses": 0.0,
+            "operatingIncome": 0.0,
+        },
+        "incomeBeforeTaxes": {
+            "operatingIncome": 100.0,
+            "otherExpenses": 0.0,
+            "otherProducts": 0.0,
+            "incomeBeforeTaxes": 100.0,
+        },
+        "netIncome": {
+            "incomeBeforeTaxes": 100.0,
+            "taxRate": 0.3,
+            "incomeTaxExpense": 30.0,
+            "netIncome": 70.0,
+        },
+    },
+}
+
 
 balance_sheet_data = {
     "assets": {
@@ -487,7 +583,7 @@ balance_sheet_data = {
             "isGroup": False,
             "isSubgroup": False,
             "isEntity": True,
-            "balance": 0,
+            "balance": 100,
         },
         "1.01.05": {
             "accountCode": "1.01.05",
@@ -543,7 +639,7 @@ balance_sheet_data = {
             "isGroup": False,
             "isSubgroup": False,
             "isEntity": True,
-            "balance": 100,
+            "balance": 0,
         },
         "1.02.02": {
             "accountCode": "1.02.02",

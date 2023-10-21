@@ -48,7 +48,10 @@ async def generate_trial_balance(ledger_book: LedgerBook):
 
 
 @router.post("/generate_income_statement", response_model=IncomeStatement)
-async def generate_income_statement(trial_balance: TrialBalance, tax_rate: float):
+async def generate_income_statement(
+    trial_balance: TrialBalance,
+    tax_rate: Annotated[float, Query(alias="taxRate")] = 0,
+):
     return create_income_statement(
         trial_balance=trial_balance,
         tax_rate=tax_rate,

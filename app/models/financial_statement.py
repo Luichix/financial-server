@@ -11,6 +11,28 @@ class AccountGroup(str, Enum):
     EXPENSE = 5
 
 
+class IncomeStatementAccountNames(str, Enum):
+    SALES = "sales"
+    SALES_RETURNS = "sales_returns"
+    SALES_DISCOUNTS = "sales_discounts"
+    SALES_ALLOWANCES = "sales_allowances"
+    PURCHASES = "purchases"
+    PURCHASING_EXPENSES = "purchasing_expenses"
+    PURCHASES_RETURNS = "purchases_returns"
+    PURCHASES_DISCOUNTS = "purchases_discounts"
+    PURCHASES_ALLOWANCES = "purchases_allowances"
+    BEGINNING_INVENTORY = "beginning_inventory"
+    ENDING_INVENTORY = "ending_inventory"
+    DIRECT_MATERIAL = "direct_material"
+    DIRECT_LABOR = "direct_labor"
+    FACTORY_OVERHEAD = "factory_overhead"
+    SALES_EXPENSES = "sales_expenses"
+    ADMINISTRATIVE_EXPENSES = "administrative_expenses"
+    FINANCIAL_EXPENSES = "financial_expenses"
+    OTHER_EXPENSES = "other_expenses"
+    OTHER_PRODUCTS = "other_products"
+
+
 class AccountBase(BaseModel):
     account_code: str = Field(title="Account Code", alias="accountCode")
     account_name: str = Field(title="Account Name", alias="accountName")
@@ -47,22 +69,13 @@ class Account(AccountBase):
     related_accounts: list[str] = Field(
         title="Accounts related", alias="relatedAccounts", default=[]
     )
-    in_income_statement: bool = Field(
-        title="Belongs to Income Statement", alias="inIncomeStatement", default=False
+    income_statement_account_name: str = Field(
+        title="Income Statement Account Name",
+        alias="incomeStatementAccountName",
+        default="",
     )
     in_balance_sheet: bool = Field(
         title="Belongs to Balance Sheet", alias="inBalanceSheet", default=True
-    )
-    order_in_income_statement: int = Field(
-        title="Order in Income Statement",
-        description="Column position u order into the Income Statement",
-        alias="orderInIncomeStatement",
-        default=0,
-    )
-    related_income_statement_account: str | None = Field(
-        title="Related Income Statement Account",
-        alias="relatedIncomeStatementAccount",
-        default=None,
     )
 
 
@@ -134,11 +147,168 @@ class TrialBalance(BaseModel):
         return 0.0
 
 
+class NetSales(BaseModel):
+    sales: float
+    sales_returns: float
+    sales_discounts: float
+    sales_allowances: float
+    net_sales: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        net_sales = (
+            self.sales
+            - self.sales_returns
+            - self.sales_discounts
+            - self.sales_allowances
+        )
+        self.net_sales = net_sales
+
+
+class NetPurchases(BaseModel):
+    purchases: float
+    purchasing_expenses: float
+    total_purchases: float = 0
+    purchases_returns: float
+    purchases_discounts: float
+    purchases_allowances: float
+    net_purchases: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        total_purchases = self.purchases + self.purchasing_expenses
+        net_purchases = (
+            total_purchases
+            - self.purchases_returns
+            - self.purchases_discounts
+            - self.purchases_allowances
+        )
+
+        self.total_purchases = total_purchases
+        self.net_purchases = net_purchases
+
+
+class SalesCost(BaseModel):
+    beginning_inventory: float
+    purchases: float
+    ending_inventory: float
+    sales_cost: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        sales_cost = self.beginning_inventory + self.purchases - self.ending_inventory
+
+        self.sales_cost = sales_cost
+
+
+class ProductionCost(BaseModel):
+    direct_material: float
+    direct_labor: float
+    factory_overhead: float
+    production_costs: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        production_costs = (
+            self.direct_material + self.direct_labor + self.factory_overhead
+        )
+
+        self.production_costs = production_costs
+
+
+class GrossMargin(BaseModel):
+    sales_revenue: float
+    sales_cost: float
+    gross_profit: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.gross_profit = self.sales_revenue - self.sales_cost
+
+
+class OperatingExpenses(BaseModel):
+    sales_expenses: float
+    administrative_expenses: float
+    financial_expenses: float
+    operating_expenses: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.operating_expenses = (
+            self.sales_expenses + self.administrative_expenses + self.financial_expenses
+        )
+
+
+class OperatingIncome(BaseModel):
+    gross_margin: float
+    operating_expenses: float
+    operating_income: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.operating_income = self.gross_margin - self.operating_expenses
+
+
+class IncomeBeforeTaxes(BaseModel):
+    operating_income: float
+    other_expenses: float
+    other_products: float
+    income_before_taxes: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        income_before_taxes = (
+            self.operating_income - self.other_expenses + self.other_products
+        )
+        self.income_before_taxes = income_before_taxes
+
+
+class NetIncome(BaseModel):
+    income_before_taxes: float
+    tax_rate: float
+    income_tax_expense: float = 0
+    net_income: float = 0
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        if self.income_before_taxes > 0:
+            income_tax_expense = self.income_before_taxes * self.tax_rate
+            self.income_tax_expense = income_tax_expense
+        self.net_income = self.income_before_taxes - self.income_tax_expense
+
+
+class IncomeStatementAccounts(BaseModel):
+    sales: float = 0
+    sales_returns: float = 0
+    sales_discounts: float = 0
+    sales_allowances: float = 0
+    purchases: float = 0
+    purchasing_expenses: float = 0
+    purchases_returns: float = 0
+    purchases_discounts: float = 0
+    purchases_allowances: float = 0
+    beginning_inventory: float = 0
+    ending_inventory: float = 0
+    direct_material: float = 0
+    direct_labor: float = 0
+    factory_overhead: float = 0
+    sales_expenses: float = 0
+    administrative_expenses: float = 0
+    financial_expenses: float = 0
+    other_expenses: float = 0
+    other_products: float = 0
+
+
 class IncomeStatement(BaseModel):
-    entries: list[list]
-    before_tax: float = Field(title="Before Tax", alias="beforeTax")
-    tax: float
-    profit_or_loss: float = Field(title="Profit or Loss", alias="profitOrLoss")
+    net_sales: NetSales
+    net_purchases: NetPurchases
+    sales_cost: SalesCost
+    production_cost: ProductionCost
+    gross_margin: GrossMargin
+    operating_expenses: OperatingExpenses
+    operating_income: OperatingIncome
+    income_before_taxes: IncomeBeforeTaxes
+    net_income: NetIncome
 
 
 class BalanceSheetAccount(AccountBase):

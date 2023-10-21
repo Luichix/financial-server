@@ -7,12 +7,22 @@ from app.models.financial_statement import (
     BalanceSheet,
     BalanceSheetAccount,
     BalanceType,
-    EntryBase,
     IncomeStatement,
+    EntryBase,
+    GrossMargin,
+    IncomeBeforeTaxes,
+    IncomeStatementAccounts,
     JournalBook,
     JournalBookEntry,
     LedgerBook,
     LedgerBookAccount,
+    NetIncome,
+    NetPurchases,
+    NetSales,
+    OperatingExpenses,
+    OperatingIncome,
+    ProductionCost,
+    SalesCost,
     TrialBalance,
     TrialBalanceAccount,
 )
@@ -191,83 +201,117 @@ def create_trial_balance(ledger_book: LedgerBook) -> TrialBalance:
     return trial_balance
 
 
+# Generate Income Statement
+def extract_income_statement_accounts(
+    trial_balance: TrialBalance, account_catalog: AccountCatalog
+) -> IncomeStatementAccounts:
+    # List of account names in Income Statement
+    income_statement_account_names = [
+        "sales",
+        "sales_returns",
+        "sales_discounts",
+        "sales_allowances",
+        "purchases",
+        "purchasing_expenses",
+        "purchases_returns",
+        "purchases_discounts",
+        "purchases_allowances",
+        "beginning_inventory",
+        "purchases",
+        "ending_inventory",
+        "direct_material",
+        "direct_labor",
+        "factory_overhead",
+        "sales_revenue",
+        "sales_cost",
+        "sales_expenses",
+        "administrative_expenses",
+        "financial_expenses",
+        "other_expenses",
+        "other_products",
+    ]
+
+    # Initialize a dictionary for save all accounts required in Income Statement
+    income_statement_accounts_data = {
+        account_name: 0.0 for account_name in income_statement_account_names
+    }
+
+    # Goes through the Trial Balance Accounts
+    for account_summary in trial_balance.accounts_summary:
+        account_code = account_summary.account_code
+        account_balance = account_summary.balance
+
+        # Verify if the account is in the account catalog
+        for account in account_catalog.accounts:
+            if account.account_code == account_code:
+                print(account)
+                # Verify if the account is Income Statement
+                if (
+                    account.income_statement_account_name
+                    in income_statement_account_names
+                ):
+                    # Add balance into dictionary
+                    income_statement_accounts_data[
+                        account.income_statement_account_name
+                    ] = account_balance
+
+    # Crea el objeto IncomeStatementAccounts con los saldos
+    income_statement_accounts = IncomeStatementAccounts(
+        **income_statement_accounts_data
+    )
+
+    return income_statement_accounts
+
+
 def create_income_statement(
     trial_balance: TrialBalance, account_catalog: AccountCatalog, tax_rate: float
 ) -> IncomeStatement:
-    revenue_accounts: dict[str, TrialBalanceAccount] = {}
-    expense_accounts: dict[str, TrialBalanceAccount] = {}
-    last_column = 0
-
-    # evaluate income group account
-    for account in trial_balance.accounts_summary:
-        account_group = account.get_group()
-        if account_group == AccountGroup.REVENUE:
-            revenue_accounts[account.account_code] = account
-        elif account_group == AccountGroup.EXPENSE:
-            expense_accounts[account.account_code] = account
-
-    income_statement = []
-
-    for account in account_catalog.accounts:
-        # Determinar si hay que añadirlo al estado de resultados
-        if (
-            account.get_group() in [AccountGroup.REVENUE, AccountGroup.EXPENSE]
-            and account.in_income_statement
-        ):
-            # Comprobar si la cuenta existe en el Balance de Comprobación
-            if account.account_code in revenue_accounts:
-                balance = revenue_accounts[account.account_code].balance
-            elif account.account_code in expense_accounts:
-                balance = expense_accounts[account.account_code].balance
-            else:
-                balance = 0.0  # Valor predeterminado si la cuenta no existe en el Balance de Comprobación
-
-            # Determinar la posicion en la que hay que añadirlo
-            column = account.order_in_income_statement
-            column_values = [None, None, None, None]
-            column_values[column] = balance
-
-            if column > last_column:
-                last_column = column
-
-            row = [account.account_name] + column_values
-            income_statement.append(row)
-
-    last_column += 1
-
-    column_values = [None, None, None, None]
-    before_tax = ["UTILIDAD ANTES DE IMPUESTOS"] + column_values
-    total_revenue = sum(
-        account.balance
-        for account in revenue_accounts.values()
-        if account.order_in_income_statement == last_column
+    # Extrae las cuentas de Estado de Resultados del Balance de Comprobación
+    income_statement_accounts = extract_income_statement_accounts(
+        trial_balance, account_catalog
     )
-    total_expense = sum(
-        account.balance
-        for account in expense_accounts.values()
-        if account.order_in_income_statement == last_column
+
+    # Calcula los valores necesarios para llenar los campos de IncomeStatement
+    net_sales = NetSales(**income_statement_accounts.model_dump())
+    net_purchases = NetPurchases(**income_statement_accounts.model_dump())
+    sales_cost = SalesCost(**income_statement_accounts.model_dump())
+    production_cost = ProductionCost(**income_statement_accounts.model_dump())
+    gross_margin = GrossMargin(
+        sales_revenue=net_sales.net_sales, sales_cost=sales_cost.sales_cost
     )
-    before_tax_value = total_revenue - total_expense
-    before_tax[last_column] = round(before_tax_value, 2)
-
-    tax = ["IMPUESTOS"] + column_values
-    tax_value = before_tax_value * tax_rate
-    tax[last_column] = round(tax_value, 2)
-
-    profit_or_loss = ["UTILIDAD O PERDIDA DEL EJERCICIO"] + column_values
-    profit_or_loss_value = before_tax_value - tax_value
-    profit_or_loss[last_column] = round(profit_or_loss_value, 2)
-
-    income_statement.append(before_tax)
-    income_statement.append(tax)
-    income_statement.append(profit_or_loss)
-
-    return IncomeStatement(
-        entries=income_statement,
-        beforeTax=before_tax_value,
-        tax=tax_value,
-        profitOrLoss=profit_or_loss_value,
+    operating_expenses = OperatingExpenses(**income_statement_accounts.model_dump())
+    operating_income = OperatingIncome(
+        gross_margin=gross_margin.gross_profit,
+        operating_expenses=operating_expenses.operating_expenses,
     )
+    income_before_taxes = IncomeBeforeTaxes(
+        operating_income=operating_income.operating_income,
+        other_expenses=income_statement_accounts.other_expenses,
+        other_products=income_statement_accounts.other_products,
+    )
+    net_income = NetIncome(
+        income_before_taxes=income_before_taxes.income_before_taxes, tax_rate=tax_rate
+    )
+
+    # Crea el objeto IncomeStatement con los campos calculados
+    income_statement = IncomeStatement(
+        net_sales=net_sales,
+        net_purchases=net_purchases,
+        sales_cost=sales_cost,
+        production_cost=production_cost,
+        gross_margin=gross_margin,
+        operating_expenses=operating_expenses,
+        operating_income=operating_income,
+        income_before_taxes=income_before_taxes,
+        net_income=net_income,
+    )
+
+    return income_statement
+
+
+# Generate Balance Sheet
+def get_account_balance(account: Account, trial_balance: TrialBalance):
+    return trial_balance.get_balance(account.account_code)
 
 
 def create_balance_sheet(
@@ -297,7 +341,3 @@ def create_balance_sheet(
                 )
 
     return balance_sheet
-
-
-def get_account_balance(account: Account, trial_balance: TrialBalance):
-    return trial_balance.get_balance(account.account_code)

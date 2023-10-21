@@ -1,4 +1,4 @@
-from app.models.financial_statement import BalanceType
+from app.models.financial_statement import BalanceType, IncomeStatementAccountNames
 
 
 account_catalog_data = {
@@ -31,7 +31,8 @@ account_catalog_data = {
         {
             "accountCode": "1.01.04",
             "accountName": "INVENTARIOS",
-            "description": "",
+            "description": "Inventario de Mercancias",
+            "incomeStatementAccountName": IncomeStatementAccountNames.ENDING_INVENTORY,
         },
         {
             "accountCode": "1.01.05",
@@ -177,14 +178,41 @@ account_catalog_data = {
             "accountCode": "4.01",
             "accountName": "INGRESOS POR VENTAS",
             "description": "",
-            "inIncomeStatement": True,
-            "orderInIncomeStatement": 1,
         },
         {
             "accountCode": "4.01.01",
             "accountName": "VENTAS POR ACTIVIDAD",
             "description": "",
-            "inIncomeStatement": True,
+            "incomeStatementAccountName": IncomeStatementAccountNames.SALES,
+        },
+        {
+            "accountCode": "4.01.02",
+            "accountName": "DEVOLUCIONES SOBRE VENTAS",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.SALES_RETURNS,
+        },
+        {
+            "accountCode": "4.01.03",
+            "accountName": "DESCUENTOS SOBRE VENTAS",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.SALES_DISCOUNTS,
+        },
+        {
+            "accountCode": "4.01.04",
+            "accountName": "REBAJAS SOBRE VENTAS",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.SALES_ALLOWANCES,
+        },
+        {
+            "accountCode": "4.02",
+            "accountName": "OTROS INGRESOS",
+            "description": "",
+        },
+        {
+            "accountCode": "4.02.01",
+            "accountName": "OTROS PRODUCTOS",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.OTHER_PRODUCTS,
         },
         {
             "accountCode": "5",
@@ -193,53 +221,95 @@ account_catalog_data = {
         },
         {
             "accountCode": "5.01",
-            "accountName": "COSTOS DE PRODUCCIÓN",
+            "accountName": "COMPRAS",
             "description": "",
-            "inIncomeStatement": True,
-            "orderInIncomeStatement": 1,
         },
         {
             "accountCode": "5.01.01",
-            "accountName": "COSTOS DE MATERIALES",
+            "accountName": "COMPRAS DE MERCANCIAS",
             "description": "",
-            "inIncomeStatement": True,
+            "incomeStatementAccountName": IncomeStatementAccountNames.PURCHASES,
         },
         {
             "accountCode": "5.01.02",
-            "accountName": "COSTOS DE MANO DE OBRA",
+            "accountName": "GASTOS DE COMPRAS",
             "description": "",
-            "inIncomeStatement": True,
+            "incomeStatementAccountName": IncomeStatementAccountNames.PURCHASING_EXPENSES,
         },
         {
             "accountCode": "5.01.03",
-            "accountName": "COSTOS INDIRECTOS DE FABRICACIÓN",
+            "accountName": "DEVOLUCIONES SOBRE COMPRAS",
             "description": "",
-            "inIncomeStatement": True,
+            "incomeStatementAccountName": IncomeStatementAccountNames.PURCHASES_RETURNS,
+        },
+        {
+            "accountCode": "5.01.04",
+            "accountName": "DESCUENTOS SOBRE COMPRAS",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.PURCHASES_DISCOUNTS,
+        },
+        {
+            "accountCode": "5.01.05",
+            "accountName": "REBAJAS SOBRE COMPRAS",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.PURCHASES_ALLOWANCES,
         },
         {
             "accountCode": "5.02",
-            "accountName": "GASTOS OPERATIVOS",
+            "accountName": "COSTOS DE PRODUCCIÓN",
             "description": "",
-            "inIncomeStatement": True,
-            "orderInIncomeStatement": 1,
         },
         {
             "accountCode": "5.02.01",
-            "accountName": "GASTOS DE ADMINISTRACIÓN",
+            "accountName": "COSTOS DE MATERIALES",
             "description": "",
-            "inIncomeStatement": True,
+            "incomeStatementAccountName": IncomeStatementAccountNames.DIRECT_MATERIAL,
         },
         {
             "accountCode": "5.02.02",
-            "accountName": "GASTOS DE VENTA",
+            "accountName": "COSTOS DE MANO DE OBRA",
             "description": "",
-            "inIncomeStatement": True,
+            "incomeStatementAccountName": IncomeStatementAccountNames.DIRECT_LABOR,
         },
         {
             "accountCode": "5.02.03",
+            "accountName": "COSTOS INDIRECTOS DE FABRICACIÓN",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.FACTORY_OVERHEAD,
+        },
+        {
+            "accountCode": "5.03",
+            "accountName": "GASTOS OPERATIVOS",
+            "description": "",
+        },
+        {
+            "accountCode": "5.03.01",
+            "accountName": "GASTOS DE ADMINISTRACIÓN",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.ADMINISTRATIVE_EXPENSES,
+        },
+        {
+            "accountCode": "5.03.02",
+            "accountName": "GASTOS DE VENTA",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.SALES_EXPENSES,
+        },
+        {
+            "accountCode": "5.03.03",
             "accountName": "GASTOS FINANCIEROS",
             "description": "",
-            "inIncomeStatement": True,
+            "incomeStatementAccountName": IncomeStatementAccountNames.FINANCIAL_EXPENSES,
+        },
+        {
+            "accountCode": "5.04",
+            "accountName": "OTROS EGRESOS",
+            "description": "",
+        },
+        {
+            "accountCode": "5.04.01",
+            "accountName": "OTROS GASTOS",
+            "description": "",
+            "incomeStatementAccountName": IncomeStatementAccountNames.OTHER_EXPENSES,
         },
     ]
 }
@@ -253,8 +323,8 @@ journal_book_data = {
             "credit": 0,
             "concept": "Compra de productos en inventario",
             "account": {
-                "accountCode": "1.01.01",
-                "accountName": "Inventario de Mercancias",
+                "accountCode": "1.01.04",
+                "accountName": "INVENTARIOS",
             },
         },
         {
@@ -280,8 +350,8 @@ evaluated_journal_book_data = {
             "credit": 0,
             "concept": "Compra de productos en inventario",
             "account": {
-                "accountCode": "1.01.01",
-                "accountName": "Inventario de Mercancias",
+                "accountCode": "1.01.04",
+                "accountName": "INVENTARIOS",
             },
             "unbalanced": False,
         },
@@ -305,8 +375,8 @@ evaluated_journal_book_data = {
 ledger_book_data = {
     "ledgerBookEntries": [
         {
-            "accountCode": "1.01.01",
-            "accountName": "Inventario de Mercancias",
+            "accountCode": "1.01.04",
+            "accountName": "INVENTARIOS",
             "entries": [
                 {
                     "entryNumber": 1,
@@ -342,8 +412,8 @@ ledger_book_data = {
 trial_balance_data = {
     "accountsSummary": [
         {
-            "accountCode": "1.01.01",
-            "accountName": "Inventario de Mercancias",
+            "accountCode": "1.01.04",
+            "accountName": "INVENTARIOS",
             "debit": 100,
             "credit": 0,
             "debitBalance": 100,
@@ -367,26 +437,7 @@ trial_balance_data = {
     "isBalanced": True,
 }
 
-income_statement_data = {
-    "entries": [
-        ["INGRESOS POR VENTAS", None, 0.0, None, None],
-        ["VENTAS POR ACTIVIDAD", 0.0, None, None, None],
-        ["COSTOS DE PRODUCCIÓN", None, 0.0, None, None],
-        ["COSTOS DE MATERIALES", 0.0, None, None, None],
-        ["COSTOS DE MANO DE OBRA", 0.0, None, None, None],
-        ["COSTOS INDIRECTOS DE FABRICACIÓN", 0.0, None, None, None],
-        ["GASTOS OPERATIVOS", None, 0.0, None, None],
-        ["GASTOS DE ADMINISTRACIÓN", 0.0, None, None, None],
-        ["GASTOS DE VENTA", 0.0, None, None, None],
-        ["GASTOS FINANCIEROS", 0.0, None, None, None],
-        ["UTILIDAD ANTES DE IMPUESTOS", None, 0, None, None],
-        ["IMPUESTOS", None, 0.0, None, None],
-        ["UTILIDAD O PERDIDA DEL EJERCICIO", None, 0.0, None, None],
-    ],
-    "beforeTax": 0,
-    "tax": 0.0,
-    "profitOrLoss": 0.0,
-}
+income_statement_data = {}
 
 balance_sheet_data = {
     "assets": {

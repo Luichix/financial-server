@@ -3,6 +3,7 @@ from fastapi import APIRouter, Query
 
 from app.models.financial_statement import (
     AccountCatalog,
+    AccountingMethod,
     BalanceSheet,
     IncomeStatement,
     JournalBook,
@@ -51,11 +52,15 @@ async def generate_trial_balance(ledger_book: LedgerBook):
 async def generate_income_statement(
     trial_balance: TrialBalance,
     tax_rate: Annotated[float, Query(alias="taxRate")] = 0,
+    accounting_method: Annotated[
+        AccountingMethod, Query(alias="accountingMethod")
+    ] = AccountingMethod.ANALYTICAL,
 ):
     return create_income_statement(
         trial_balance=trial_balance,
         tax_rate=tax_rate,
         account_catalog=AccountCatalog(**account_catalog_data),
+        accounting_method=accounting_method,
     )
 
 

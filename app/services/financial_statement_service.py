@@ -8,6 +8,7 @@ from app.models.financial_statement import (
     AnalyticalMethod,
     BalanceSheet,
     BalanceSheetAccount,
+    BalanceSheetSubgroup,
     BalanceType,
     IncomeStatement,
     EntryBase,
@@ -333,22 +334,35 @@ def create_balance_sheet(
 ) -> BalanceSheet:
     balance_sheet = BalanceSheet()
 
+    group_mapping = {
+        AccountGroup.ASSETS: balance_sheet.assets,
+        AccountGroup.LIABILITIES: balance_sheet.liability,
+        AccountGroup.EQUITY: balance_sheet.equity,
+    }
+
     for account in account_catalog.accounts:
-        if account.in_balance_sheet:
-            if account.get_group() == AccountGroup.ASSETS:
-                balance_sheet.assets[account.account_code] = BalanceSheetAccount(
+        if account.in_balance_sheet and account.get_group() in group_mapping:
+            group = group_mapping[account.get_group()]
+            if account.is_group:
+                group.group = BalanceSheetAccount(
                     accountCode=account.account_code,
                     accountName=account.account_name,
                     balance=get_account_balance(account, trial_balance),
                 )
-            elif account.get_group() == AccountGroup.LIABILITIES:
-                balance_sheet.liability[account.account_code] = BalanceSheetAccount(
-                    accountCode=account.account_code,
-                    accountName=account.account_name,
-                    balance=get_account_balance(account, trial_balance),
+            elif account.is_subgroup:
+                group.subgroups[account.account_code] = BalanceSheetSubgroup(
+                    subgroup=BalanceSheetAccount(
+                        accountCode=account.account_code,
+                        accountName=account.account_name,
+                        balance=get_account_balance(account, trial_balance),
+                    )
                 )
-            elif account.get_group() == AccountGroup.EQUITY:
-                balance_sheet.equity[account.account_code] = BalanceSheetAccount(
+
+            elif account.is_entity:
+                subgroup_key = account.get_subgroup()
+                group.subgroups[subgroup_key].entities[
+                    account.account_code
+                ] = BalanceSheetAccount(
                     accountCode=account.account_code,
                     accountName=account.account_name,
                     balance=get_account_balance(account, trial_balance),

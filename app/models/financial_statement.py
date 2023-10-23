@@ -76,6 +76,11 @@ class AccountBase(BaseModel):
         codes = self.account_code.split(".")
         return codes[0]
 
+    def get_subgroup(self):
+        codes = self.account_code.split(".")
+        if len(codes) >= 2:
+            return ".".join([codes[0], codes[1]])
+
 
 class Account(AccountBase):
     description: str = ""
@@ -335,10 +340,20 @@ class BalanceSheetAccount(AccountBase):
     balance: float
 
 
+class BalanceSheetSubgroup(BaseModel):
+    subgroup: BalanceSheetAccount = {}
+    entities: dict[str, BalanceSheetAccount] = {}
+
+
+class BalanceSheetGroup(BaseModel):
+    group: BalanceSheetAccount = {}
+    subgroups: dict[str, BalanceSheetSubgroup] = {}
+
+
 class BalanceSheet(BaseModel):
-    assets: dict[str, BalanceSheetAccount] = {}
-    liability: dict[str, BalanceSheetAccount] = {}
-    equity: dict[str, BalanceSheetAccount] = {}
+    assets: BalanceSheetGroup = BalanceSheetGroup()
+    liability: BalanceSheetGroup = BalanceSheetGroup()
+    equity: BalanceSheetGroup = BalanceSheetGroup()
 
 
 # Production and Sales Cost Statement Models

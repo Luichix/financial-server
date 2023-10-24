@@ -543,7 +543,7 @@ balance_sheet_data = {
             "isGroup": True,
             "isSubgroup": False,
             "isEntity": False,
-            "balance": 0,
+            "balance": 200,
         },
         "subgroups": {
             "1.01": {
@@ -553,7 +553,7 @@ balance_sheet_data = {
                     "isGroup": False,
                     "isSubgroup": True,
                     "isEntity": False,
-                    "balance": 0,
+                    "balance": 200,
                 },
                 "entities": {
                     "1.01.01": {

@@ -357,7 +357,6 @@ def create_balance_sheet(
                         balance=get_account_balance(account, trial_balance),
                     )
                 )
-
             elif account.is_entity:
                 subgroup_key = account.get_subgroup()
                 group.subgroups[subgroup_key].entities[
@@ -367,5 +366,19 @@ def create_balance_sheet(
                     accountName=account.account_name,
                     balance=get_account_balance(account, trial_balance),
                 )
+
+    for group_code, group in group_mapping.items():
+        for subgroup_code, subgroup in group.subgroups.items():
+            total_entities = sum(
+                entity.balance for entitiy_code, entity in subgroup.entities.items()
+            )
+            subgroup.subgroup.balance = total_entities
+
+        total_subgroups = sum(
+            subgroup_item.subgroup.balance
+            for subgroup_key, subgroup_item in group.subgroups.items()
+        )
+
+        group.group.balance = total_subgroups
 
     return balance_sheet

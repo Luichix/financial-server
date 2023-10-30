@@ -1,6 +1,11 @@
 import xlsxwriter
 
-from app.models.financial_statement import JournalBook, AccountCatalog, LedgerBook
+from app.models.financial_statement import (
+    BalanceType,
+    JournalBook,
+    AccountCatalog,
+    LedgerBook,
+)
 
 
 def generate_account_catalog_xlsx(
@@ -60,29 +65,51 @@ def generate_ledger_book_xlsx(ledger_book: LedgerBook, output_path):
     worksheet = workbook.add_worksheet()
 
     # Define encabezados
-    headers = [
-        "Codigo",
-        "Cuenta",
-        "Debe",
-        "Haber",
-        "Balance",
-        "Balance Type",
-    ]
+    headers = ["Fecha", "Asiento", "Debe", "Haber", "Asiento", "Fecha"]
 
-    # Escribir los encabezados en la primera fila
-    for col, header in enumerate(headers):
-        worksheet.write(0, col, header)
-
-    # Escribir los datos de los registros del libro mayor en filas sucesivas
-    row = 1
-    for entry in ledger_book.ledger_book_entries:
-        worksheet.write(row, 0, entry.account_code)
-        worksheet.write(row, 1, entry.account_name)
-        worksheet.write(row, 2, entry.debit)
-        worksheet.write(row, 3, entry.credit)
-        worksheet.write(row, 4, entry.balance)
-        worksheet.write(row, 5, entry.balance_type)
+    row = 0
+    # Recorrer cada cuenta del libro mayor
+    for account in ledger_book.ledger_book_entries:
+        # Escribir el encabezado del codigo de cuenta
+        worksheet.write(row, 0, account.account_code)
         row += 1
+        # Escribir el encabezado del nombre de la cuenta
+        worksheet.write(row, 0, account.account_name)
+        row += 1
+
+        # Escribir los encabezados de los registros
+        for col, header in enumerate(headers):
+            worksheet.write(row, col, header)
+        row += 1
+
+        # Escribir los datos de los registros del libro mayor en filas sucesivas
+        debit_row = row
+        credit_row = row
+        for entry in account.entries:
+            if entry.debit != 0:
+                worksheet.write(debit_row, 0, entry.date.isoformat())
+                worksheet.write(debit_row, 1, entry.entry_number)
+                worksheet.write(debit_row, 2, entry.debit)
+                debit_row += 1
+
+            if entry.credit != 0:
+                worksheet.write(credit_row, 4, entry.entry_number)
+                worksheet.write(credit_row, 5, entry.date.isoformat())
+                worksheet.write(credit_row, 3, entry.credit)
+                credit_row += 1
+
+            row = max(debit_row, credit_row)
+
+        if len(account.entries) > 1:
+            worksheet.write(row, 2, account.debit)
+            worksheet.write(row, 3, account.credit)
+            row += 1
+
+        if account.balance_type == BalanceType.DEBIT:
+            worksheet.write(row, 2, account.balance)
+        if account.balance_type == BalanceType.CREDIT:
+            worksheet.write(row, 3, account.balance)
+        row += 2
 
     # Cerrar el archivo
     workbook.close()

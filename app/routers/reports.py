@@ -22,6 +22,17 @@ from app.data.financial_statement_data import account_catalog_data
 router = APIRouter()
 
 
+@router.post("/generate_amortization_table_xlsx")
+async def generate_amortization_table_xlsx_router():
+    # Generate an unique filename path
+    unique_filename_path = f"app/temp/amortization_table_{uuid.uuid4()}.xlsx"
+
+    # Generate the file XLSX in server
+    # generate_table_amortization_xlsx(
+    #     amortization_table =
+    # )
+
+
 @router.post("/generate_account_catalog_xlsx/")
 async def generate_account_catalog_xlsx_router():
     # Generate a unique file name with an UUID

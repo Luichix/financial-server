@@ -29,8 +29,8 @@ def generate_account_catalog_xlsx(
 
     # Write the data of accounts in successive files
     for row, account in enumerate(account_catalog.accounts, start=1):
-        worksheet.write(row, 0, account.accountCode)
-        worksheet.write(row, 1, account.accountName)
+        worksheet.write(row, 0, account.account_code)
+        worksheet.write(row, 1, account.account_name)
         worksheet.write(row, 2, account.description)
 
     # Close file
@@ -355,7 +355,7 @@ def generate_balance_sheet_xlsx(balance_sheet: BalanceSheet, output_path):
     worksheet = workbook.add_worksheet()
 
     header_format = workbook.add_format({"bold": True})
-    footer_format = workbook.add_format({"bold": True,"align": "right"})
+    footer_format = workbook.add_format({"bold": True, "align": "right"})
     money_format = workbook.add_format({"num_format": "#,##0.00"})
 
     row = 1

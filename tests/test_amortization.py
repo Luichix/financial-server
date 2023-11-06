@@ -1,7 +1,19 @@
+from fastapi.testclient import TestClient
+from app.main import app
+
 from app.services.amortization_service import (
     adjust_frecuency_value,
 )
 from app.models.amortization import FrecuencyType, PaymentFrecuency
+
+from app.data.amortization_table_data import (
+    amortization_params_data,
+    amortization_table_french_data,
+    amortization_table_german_data,
+    amortization_table_american_data,
+)
+
+client = TestClient(app)
 
 
 class TestFrecuency:
@@ -222,3 +234,33 @@ class TestFrecuency:
             )
             == 3
         )
+
+
+class TestAmortizationTable:
+    def test_french_generate_amortization_table_router(self):
+        response = client.post(
+            "/amortization_table?amortizationType=French", json=amortization_params_data
+        )
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/json"
+
+        assert response.json() == amortization_table_french_data
+
+    def test_german_generate_amortization_table_router(self):
+        response = client.post(
+            "/amortization_table?amortizationType=German", json=amortization_params_data
+        )
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/json"
+
+        assert response.json() == amortization_table_german_data
+
+    def test_american_generate_amortization_table_router(self):
+        response = client.post(
+            "/amortization_table?amortizationType=American",
+            json=amortization_params_data,
+        )
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/json"
+
+        assert response.json() == amortization_table_american_data

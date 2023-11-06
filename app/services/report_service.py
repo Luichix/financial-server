@@ -1,5 +1,7 @@
 import xlsxwriter
 
+from app.models.amortization import OutLoanAmortization
+
 from app.models.financial_statement import (
     AccountingMethod,
     BalanceSheet,
@@ -10,6 +12,151 @@ from app.models.financial_statement import (
     LedgerBook,
     TrialBalance,
 )
+from app.models.report import TypeFrecuencyName, TypePeriodName
+
+
+def generate_amortization_table_xlsx(
+    amortization_table: OutLoanAmortization, output_path
+):
+    # Crear un nuevo archivo de Excel
+    workbook = xlsxwriter.Workbook(output_path)
+    worksheet = workbook.add_worksheet()
+
+    # Definir formatos para celdas
+    bold_format = workbook.add_format({"bold": True})
+    money_format = workbook.add_format({"num_format": "#,##0.00"})
+    number_format = workbook.add_format({"num_format": "#,##0"})
+    rate_format = workbook.add_format({"num_format": "0.00%"})
+    right_format = workbook.add_format({"align": "right"})
+
+    row = 0
+
+    worksheet.write_string(row, 0, "Resultados", bold_format)
+    row += 2
+
+    # Resumen de datos de pagos
+    worksheet.write_string(row, 0, "Principal:", bold_format)
+    worksheet.write_number(row, 1, amortization_table.principal, money_format)
+    row += 1
+    worksheet.write_string(row, 0, "Intereses:", bold_format)
+    worksheet.write_number(row, 1, amortization_table.interest_payment, money_format)
+    row += 1
+    worksheet.write_string(row, 0, "Comisiones:", bold_format)
+    worksheet.write_number(row, 1, amortization_table.disbursement_fee, money_format)
+    row += 1
+
+    for label, amount in amortization_table.recurring_payments.items():
+        worksheet.write_string(row, 0, label, bold_format)
+        worksheet.write_number(row, 1, amount, money_format)
+        row += 1
+
+    worksheet.write_string(row, 0, "Pagos Adicionales:", bold_format)
+    worksheet.write_number(row, 1, amortization_table.additional_payment, money_format)
+    row += 1
+
+    worksheet.write_string(row, 0, "Total de Pagos", bold_format)
+    worksheet.write_number(row, 1, amortization_table.total_amount_pay, money_format)
+    row += 1
+
+    # Resumen de datos de amortizacion
+    row_data = 2
+    worksheet.write_string(row_data, 3, "Principal e Intereses:", bold_format)
+    worksheet.write_number(row_data, 4, amortization_table.fee_payment, money_format)
+    row_data += 1
+
+    worksheet.write_string(row_data, 3, "Tasa de Interes:", bold_format)
+    worksheet.write_number(
+        row_data, 4, amortization_table.interest_rate / 100, rate_format
+    )
+    worksheet.write_string(
+        row_data,
+        5,
+        TypeFrecuencyName[amortization_table.interest_rate_type],
+        money_format,
+    )
+    row_data += 1
+    worksheet.write_string(row_data, 3, "Numero de Periodos:", bold_format)
+    worksheet.write_number(
+        row_data, 4, amortization_table.periods_number, number_format
+    )
+    worksheet.write_string(row_data, 5, TypePeriodName[amortization_table.periods_type])
+    row_data += 1
+    worksheet.write_string(row_data, 3, "Frecuencia de Pago:", bold_format)
+    worksheet.write_string(
+        row_data,
+        4,
+        TypeFrecuencyName[amortization_table.payment_frecuency],
+        right_format,
+    )
+    row_data += 1
+    worksheet.write_string(row_data, 3, "Numero de Cuotas:", bold_format)
+    worksheet.write_number(
+        row_data, 4, amortization_table.number_installments, number_format
+    )
+    worksheet.write_string(row_data, 5, "Cuotas")
+    row_data += 1
+    worksheet.write_string(row_data, 3, "Periodo de Gracia:", bold_format)
+    worksheet.write_number(row_data, 4, amortization_table.grace_period, number_format)
+    worksheet.write_string(row_data, 5, "Cuotas")
+
+    row += 2
+
+    # Escribir los encabezados
+    headers = ["Periodo", "Principal", "Cuota de Pago", "Intereses", "Amortización"]
+    worksheet.write_row(row, 0, headers, bold_format)
+
+    col = 5
+
+    worksheet.write_string(row, col, "Pagos Adicionales", bold_format)
+    col += 1
+
+    for label, amount in amortization_table.recurring_payments.items():
+        worksheet.write_string(row, col, label, bold_format)
+        col += 1
+    row += 1
+
+    # Escribir los datos de la tabla de amortización
+    for i, data in enumerate(amortization_table.amortization_table):
+        row_number = i + row  # Empezar desde la segunda fila
+        worksheet.write_number(row_number, 0, data.period)
+        worksheet.write_number(row_number, 1, data.principal_payment, money_format)
+        worksheet.write_number(row_number, 2, data.fee_payment, money_format)
+        worksheet.write_number(row_number, 3, data.interest_payment, money_format)
+        worksheet.write_number(row_number, 4, data.remaining_balance, money_format)
+
+        col = 5
+
+        worksheet.write_number(row_number, col, data.additional_payment, money_format)
+        col += 1
+
+        for label, amount in data.recurring_payments.items():
+            worksheet.write_number(row_number, col, amount, money_format)
+            col += 1
+
+    # Escribir los totales
+    last_row = len(amortization_table.amortization_table) + row
+    worksheet.write(last_row, 0, "Total:", bold_format)
+    worksheet.write(last_row, 1, amortization_table.principal, money_format)
+    worksheet.write(last_row, 2, amortization_table.fee_payment, money_format)
+    worksheet.write(last_row, 3, amortization_table.interest_payment, money_format)
+
+    col = 5
+    worksheet.write_number(
+        last_row, col, amortization_table.additional_payment, money_format
+    )
+    col += 1
+    for label, amount in amortization_table.recurring_payments.items():
+        worksheet.write_number(last_row, col, amount, money_format)
+        col += 1
+
+    # Ajustar automáticamente el ancho de las columnas
+    worksheet.set_column(0, col, 20)
+
+    for row in range(0, last_row + 1):
+        worksheet.set_row(row, 20)  # Establecer el alto para cada fila en el rango
+
+    # Cerrar el archivo de Excel
+    workbook.close()
 
 
 def generate_account_catalog_xlsx(
@@ -20,18 +167,29 @@ def generate_account_catalog_xlsx(
     workbook = xlsxwriter.Workbook(output_path)
     worksheet = workbook.add_worksheet()
 
+    bold_format = workbook.add_format({"bold": True})
+
     # Define headers
     headers = ["Codigo", "Cuenta", "Descripción"]
 
     # Write headers in the first row
     for col, header in enumerate(headers):
-        worksheet.write(0, col, header)
+        worksheet.write_string(0, col, header, bold_format)
 
     # Write the data of accounts in successive files
     for row, account in enumerate(account_catalog.accounts, start=1):
         worksheet.write(row, 0, account.account_code)
-        worksheet.write(row, 1, account.account_name)
-        worksheet.write(row, 2, account.description)
+        worksheet.write_string(row, 1, account.account_name)
+        worksheet.write_string(row, 2, account.description)
+
+    # Ajustar automáticamente el ancho de las columnas
+    worksheet.set_column(0, 0, None)
+    worksheet.set_column(1, 1, 40)
+    worksheet.set_column(2, 2, 40)
+
+    last_row = len(account_catalog.accounts)
+    for row in range(0, last_row + 1):
+        worksheet.set_row(row, 18)  # Establecer el alto para cada fila en el rango
 
     # Close file
     workbook.close()
@@ -42,12 +200,15 @@ def generate_journal_book_xlsx(journal_book: JournalBook, output_path):
     workbook = xlsxwriter.Workbook(output_path)
     worksheet = workbook.add_worksheet()
 
+    bold_format = workbook.add_format({"bold": True})
+    money_format = workbook.add_format({"num_format": "#,##0.00"})
+
     # Define encabezados
     headers = ["Asiento", "Fecha", "Codigo", "Cuenta", "Concepto", "Debe", "Haber"]
 
     # Escribir los encabezados en la primera row
     for col, header in enumerate(headers):
-        worksheet.write(0, col, header)
+        worksheet.write(0, col, header, bold_format)
 
     # Escribir los datos de las entradas del libro de diario en filas sucesivas
     for row, entry in enumerate(journal_book.journal_book_entries, start=1):
@@ -56,8 +217,12 @@ def generate_journal_book_xlsx(journal_book: JournalBook, output_path):
         worksheet.write(row, 2, entry.account.account_code)
         worksheet.write(row, 3, entry.account.account_name)
         worksheet.write(row, 4, entry.concept)
-        worksheet.write(row, 5, entry.debit)
-        worksheet.write(row, 6, entry.credit)
+        worksheet.write(row, 5, entry.debit, money_format)
+        worksheet.write(row, 6, entry.credit, money_format)
+
+    # Ajustar automáticamente el ancho de las columnas
+    worksheet.set_column(3, 3, 30)
+    worksheet.set_column(4, 4, 40)
 
     # Cerrar el archivo
     workbook.close()
@@ -209,6 +374,8 @@ def generate_trial_balance_xlsx(trial_balance: TrialBalance, output_path):
     # Ajustar automáticamente el ancho de las columnas al contenido
     for col, header in enumerate(headers):
         worksheet.set_column(col, col, len(header) + 2)
+
+    worksheet.set_column(1, 1, 30)
 
     # Guardar el archivo de Excel
     workbook.close()

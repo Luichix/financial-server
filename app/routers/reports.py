@@ -1,6 +1,7 @@
 import uuid
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
+from app.models.amortization import OutLoanAmortization
 from app.models.financial_statement import (
     BalanceSheet,
     IncomeStatement,
@@ -10,6 +11,7 @@ from app.models.financial_statement import (
     TrialBalance,
 )
 from app.services.report_service import (
+    generate_amortization_table_xlsx,
     generate_account_catalog_xlsx,
     generate_balance_sheet_xlsx,
     generate_income_statement_xlsx,
@@ -23,17 +25,26 @@ router = APIRouter()
 
 
 @router.post("/generate_amortization_table_xlsx")
-async def generate_amortization_table_xlsx_router():
+async def generate_amortization_table_xlsx_router(
+    amortization_table: OutLoanAmortization,
+):
     # Generate an unique filename path
     unique_filename_path = f"app/temp/amortization_table_{uuid.uuid4()}.xlsx"
 
-    # Generate the file XLSX in server
-    # generate_table_amortization_xlsx(
-    #     amortization_table =
-    # )
+    # Genete the file XLSX in Server
+    generate_amortization_table_xlsx(
+        amortization_table=amortization_table,
+        output_path=unique_filename_path,
+    )
+
+    # Devuelve el archivo XLSX como respuesta
+    return FileResponse(
+        unique_filename_path,
+        headers={"Content-Disposition": f"attachment; filename={unique_filename_path}"},
+    )
 
 
-@router.post("/generate_account_catalog_xlsx/")
+@router.post("/generate_account_catalog_xlsx")
 async def generate_account_catalog_xlsx_router():
     # Generate a unique file name with an UUID
     unique_filename_path = f"app/temp/account_catalog_{uuid.uuid4()}.xlsx"
@@ -51,7 +62,7 @@ async def generate_account_catalog_xlsx_router():
     )
 
 
-@router.post("/generate_journal_book_xlsx/")
+@router.post("/generate_journal_book_xlsx")
 async def generate_journal_book_xlsx_router(journal_book: JournalBook):
     # Generate a unique file name with UUID
     unique_filename_path = f"app/temp/journal_book_{uuid.uuid4()}.xlsx"
@@ -69,7 +80,7 @@ async def generate_journal_book_xlsx_router(journal_book: JournalBook):
     )
 
 
-@router.post("/generate_ledger_book_xlsx/")
+@router.post("/generate_ledger_book_xlsx")
 async def generate_ledger_book_xlsx_router(ledger_book: LedgerBook):
     # Generate a unique file name with UUID
     unique_filename_path = f"app/temp/ledger_book{uuid.uuid4()}.xlsx"
@@ -84,7 +95,7 @@ async def generate_ledger_book_xlsx_router(ledger_book: LedgerBook):
     )
 
 
-@router.post("/generate_trial_balance_xlsx/")
+@router.post("/generate_trial_balance_xlsx")
 async def generate_trial_balance_xlsx_router(trial_balance: TrialBalance):
     # Generate a unique file name with UUID
     unique_filename_path = f"app/temp/trial_balance_{uuid.uuid4()}.xlsx"
@@ -99,7 +110,7 @@ async def generate_trial_balance_xlsx_router(trial_balance: TrialBalance):
     )
 
 
-@router.post("/generate_income_statement_xlsx/")
+@router.post("/generate_income_statement_xlsx")
 async def generate_income_statement_xlsx_router(income_statement: IncomeStatement):
     # Generate a unique file name with uuid
     unique_filename_path = f"app/temp/income_statement_{uuid.uuid4()}.xlsx"

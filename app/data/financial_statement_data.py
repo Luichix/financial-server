@@ -31,7 +31,7 @@ account_catalog_data = {
         {
             "accountCode": "1.01.04",
             "accountName": "INVENTARIOS",
-            "description": "Inventario de Mercancias",
+            "description": "",
             "incomeStatementAccountName": IncomeStatementAccountNames.ENDING_INVENTORY,
         },
         {

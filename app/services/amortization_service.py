@@ -75,7 +75,7 @@ def generate_amortization_table(
         interest_payment = principal * interest_rate
         fee_payment = interest_payment
         principal_payment = 0
-    else:
+    elif amortization_type == AmortizationType.FRENCH:
         # Calculate the installment amortization French
         interest_payment = None
         principal_payment = None
@@ -169,35 +169,34 @@ def calculate_amortization(
         if amortization_type != AmortizationType.AMERICAN:
             interest_payment = remaining_balance * interest_rate
 
+        principal_amortization = 0
         # Check the grace period
         if period <= grace_period:
             # Calculate interest portion and principal amortization portion with grace period.
-            principal_payment = 0
-            payment_installment = 0 + interest_payment
+            principal_amortization = 0
+            payment_installment = interest_payment
         else:
             # Evaluate value of principal payment.
             if amortization_type == AmortizationType.FRENCH:
-                principal_payment = fee_payment - interest_payment
-
-            # Evaluate value of payment installment
-            if amortization_type == AmortizationType.GERMAN:
-                payment_installment = principal_payment + interest_payment
-            else:
+                principal_amortization = fee_payment - interest_payment
                 payment_installment = fee_payment
+                remaining_balance -= principal_amortization
 
-        # Calculate outstanding balance.
-        if amortization_type == AmortizationType.AMERICAN:
-            if period != period_range - 1:
+            if amortization_type == AmortizationType.GERMAN:
+                principal_amortization = principal_payment
+                payment_installment = principal_payment + interest_payment
                 remaining_balance -= principal_payment
-            else:
-                principal_payment = remaining_balance
-                remaining_balance = 0
-        else:
-            remaining_balance -= principal_payment
-        # Add the result in amortization table.
+
+            if amortization_type == AmortizationType.AMERICAN:
+                payment_installment = fee_payment
+                if period == period_range - 1:
+                    payment_installment = fee_payment + remaining_balance
+                    principal_amortization = remaining_balance
+                    remaining_balance = 0
+
         entry = {
             "period": period,
-            "principalPayment": round(principal_payment, 2),
+            "principalPayment": round(principal_amortization, 2),
             "remainingBalance": round(remaining_balance, 2),
             "feePayment": round(payment_installment, 2),
             "interestPayment": round(interest_payment, 2),

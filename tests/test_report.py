@@ -1,5 +1,10 @@
 from fastapi.testclient import TestClient
 from app.main import app
+from app.data.amortization_table_data import (
+    amortization_table_french_data,
+    amortization_table_german_data,
+    amortization_table_american_data,
+)
 from app.data.financial_statement_data import (
     evaluated_journal_book_data,
     ledger_book_data,
@@ -10,6 +15,42 @@ from app.data.financial_statement_data import (
 )
 
 client = TestClient(app)
+
+
+def test_generate_amortization_table_french_xlsx():
+    response = client.post(
+        "/generate_amortization_table_xlsx", json=amortization_table_french_data
+    )
+
+    assert response.status_code == 200
+    assert (
+        response.headers["content-type"]
+        == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+
+def test_generate_amortization_table_german_xlsx():
+    response = client.post(
+        "/generate_amortization_table_xlsx", json=amortization_table_german_data
+    )
+
+    assert response.status_code == 200
+    assert (
+        response.headers["content-type"]
+        == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+
+def test_generate_amortization_table_american_xlsx():
+    response = client.post(
+        "/generate_amortization_table_xlsx", json=amortization_table_american_data
+    )
+
+    assert response.status_code == 200
+    assert (
+        response.headers["content-type"]
+        == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 
 def test_generate_account_catalog_xlsx():

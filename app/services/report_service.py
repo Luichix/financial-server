@@ -41,18 +41,25 @@ def generate_amortization_table_xlsx(
     worksheet.write_string(row, 0, "Intereses:", bold_format)
     worksheet.write_number(row, 1, amortization_table.interest_payment, money_format)
     row += 1
-    worksheet.write_string(row, 0, "Comisiones:", bold_format)
-    worksheet.write_number(row, 1, amortization_table.disbursement_fee, money_format)
-    row += 1
+
+    if isinstance(amortization_table.disbursement_fee, (int, float)):
+        worksheet.write_string(row, 0, "Comisiones:", bold_format)
+        worksheet.write_number(
+            row, 1, amortization_table.disbursement_fee, money_format
+        )
+        row += 1
 
     for label, amount in amortization_table.recurring_payments.items():
         worksheet.write_string(row, 0, label, bold_format)
         worksheet.write_number(row, 1, amount, money_format)
         row += 1
 
-    worksheet.write_string(row, 0, "Pagos Adicionales:", bold_format)
-    worksheet.write_number(row, 1, amortization_table.additional_payment, money_format)
-    row += 1
+    if amortization_table.additional_payment != 0:
+        worksheet.write_string(row, 0, "Pagos Adicionales:", bold_format)
+        worksheet.write_number(
+            row, 1, amortization_table.additional_payment, money_format
+        )
+        row += 1
 
     worksheet.write_string(row, 0, "Total de Pagos", bold_format)
     worksheet.write_number(row, 1, amortization_table.total_amount_pay, money_format)
@@ -99,6 +106,9 @@ def generate_amortization_table_xlsx(
     worksheet.write_number(row_data, 4, amortization_table.grace_period, number_format)
     worksheet.write_string(row_data, 5, "Cuotas")
 
+    if row < row_data:
+        row = row_data
+
     row += 2
 
     # Escribir los encabezados
@@ -107,8 +117,9 @@ def generate_amortization_table_xlsx(
 
     col = 5
 
-    worksheet.write_string(row, col, "Pagos Adicionales", bold_format)
-    col += 1
+    if amortization_table.additional_payment != 0:
+        worksheet.write_string(row, col, "Pagos Adicionales", bold_format)
+        col += 1
 
     for label, amount in amortization_table.recurring_payments.items():
         worksheet.write_string(row, col, label, bold_format)
@@ -126,8 +137,11 @@ def generate_amortization_table_xlsx(
 
         col = 5
 
-        worksheet.write_number(row_number, col, data.additional_payment, money_format)
-        col += 1
+        if amortization_table.additional_payment != 0:
+            worksheet.write_number(
+                row_number, col, data.additional_payment, money_format
+            )
+            col += 1
 
         for label, amount in data.recurring_payments.items():
             worksheet.write_number(row_number, col, amount, money_format)
@@ -141,10 +155,13 @@ def generate_amortization_table_xlsx(
     worksheet.write(last_row, 3, amortization_table.interest_payment, money_format)
 
     col = 5
-    worksheet.write_number(
-        last_row, col, amortization_table.additional_payment, money_format
-    )
-    col += 1
+
+    if amortization_table.additional_payment != 0:
+        worksheet.write_number(
+            last_row, col, amortization_table.additional_payment, money_format
+        )
+        col += 1
+
     for label, amount in amortization_table.recurring_payments.items():
         worksheet.write_number(last_row, col, amount, money_format)
         col += 1

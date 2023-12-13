@@ -55,12 +55,14 @@ async def generate_income_statement(
     accounting_method: Annotated[
         AccountingMethod, Query(alias="accountingMethod")
     ] = AccountingMethod.ANALYTICAL,
+    initial_inventory: Annotated[float, Query(alias="initialInventory")] = 0,
 ):
     return create_income_statement(
         trial_balance=trial_balance,
         tax_rate=tax_rate,
         account_catalog=AccountCatalog(**account_catalog_data),
         accounting_method=accounting_method,
+        initial_inventory=initial_inventory,
     )
 
 

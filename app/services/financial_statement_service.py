@@ -251,6 +251,7 @@ def create_income_statement(
     account_catalog: AccountCatalog,
     tax_rate: float,
     accounting_method: AccountingMethod,
+    initial_inventory: float,
 ) -> IncomeStatement:
     # Extrae las cuentas de Estado de Resultados del Balance de Comprobación
     income_statement_accounts = extract_income_statement_accounts(
@@ -270,7 +271,7 @@ def create_income_statement(
             **income_statement_accounts.model_dump(by_alias=True)
         )
         sales_cost = SalesCostAnalytical(
-            beginningInventory=0.0,
+            beginningInventory=initial_inventory,
             purchases=net_purchases.net_purchases,
             endingInventory=income_statement_accounts.ending_inventory,
         )

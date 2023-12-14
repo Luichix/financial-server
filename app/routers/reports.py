@@ -19,7 +19,7 @@ from app.services.report_service import (
     generate_ledger_book_xlsx,
     generate_trial_balance_xlsx,
 )
-from app.data.financial_statement_data import account_catalog_data
+from app.data.account_catalog_data import account_catalog_data_with_description
 
 router = APIRouter()
 
@@ -51,7 +51,7 @@ async def generate_account_catalog_xlsx_router():
 
     # Genete the file XLSX in Server
     generate_account_catalog_xlsx(
-        account_catalog=AccountCatalog(**account_catalog_data),
+        account_catalog=AccountCatalog(**account_catalog_data_with_description),
         output_path=unique_filename_path,
     )
 

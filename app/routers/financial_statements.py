@@ -19,13 +19,14 @@ from app.services.financial_statement_service import (
 )
 
 from app.data.financial_statement_data import account_catalog_data
+from app.data.account_catalog_data import account_catalog_data_with_description
 
 router = APIRouter()
 
 
 @router.get("/account_catalog", response_model=AccountCatalog)
 async def get_account_catalog():
-    return AccountCatalog(**account_catalog_data)
+    return AccountCatalog(**account_catalog_data_with_description)
 
 
 @router.post(

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import amortizations, financial_statements, reports
+from app.routers import amortizations, financial_statements, reports, calculators
 from fastapi.middleware.cors import CORSMiddleware
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -12,6 +12,7 @@ app = FastAPI()
 app.include_router(amortizations.router)
 app.include_router(financial_statements.router)
 app.include_router(reports.router)
+app.include_router(calculators.router)
 
 # Handle cors
 origins = ["*"]

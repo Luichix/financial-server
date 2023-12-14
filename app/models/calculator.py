@@ -2,17 +2,24 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-class TypeCalculation(str, Enum):
-    PRINCIPAL = "Principal"
-    RATE = "Rate"
-    PERIOD = "Period"
+class CalculationType(str, Enum):
     INTEREST = "Interest"
+    RATE = "Rate"
+    PRINCIPAL = "Principal"
     FUTURE = "Future"
+    PERIOD = "Period"
 
 
-class FinancialCalculation(BaseModel):
-    principal: float = Field(default=0)
-    interest_rate: float = Field(default=0)
-    period: int = Field(default=0)
-    interest: float = Field(default=0)
-    future: float = Field(default=0)
+class PeriodType(str, Enum):
+    YEARS = "years"
+    MONTHS = "Months"
+    DAYS = "Days"
+
+
+class FinancialParams(BaseModel):
+    principal: float | None = Field(default=None)
+    interest_rate: float | None = Field(default=None)  # as a percentage
+    period: int | None = Field(default=None)  # in years
+    type_period: PeriodType | None = Field(default=None)
+    interest: float | None = Field(default=None)
+    future: float | None = Field(default=None)

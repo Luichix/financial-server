@@ -1,5 +1,5 @@
 *__pycache__/
 
 venv/
-# temp/*
+temp/*
 .pytest_cache

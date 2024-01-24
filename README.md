@@ -6,9 +6,9 @@ Financial Server is an API designed for handling financial calculations. It perf
 
 ## Screenshots / Demonstration 📸
 
-[Link to the Application](URL_APPLICATION)
+[Link to the API](https://financial-server-production.up.railway.app/docs)
 
-(Captures screenshots in the specific repository folder)
+![server](public/01.png)
 
 ## Technologies Used 🚀
 
